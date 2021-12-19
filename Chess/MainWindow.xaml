@@ -6,7 +6,74 @@
         xmlns:local="clr-namespace:Chess"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+    <Grid Background="Gray">
+        <Viewbox>
+            <UniformGrid Columns="8" Rows="8" Width="500px" Height="500px">
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="Black"/>
+                <Rectangle Fill="White"/>
+            </UniformGrid>
+        </Viewbox>
     </Grid>
 </Window>
