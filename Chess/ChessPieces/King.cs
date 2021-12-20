@@ -8,26 +8,6 @@ namespace Chess.ChessPieces
 {
     internal class King : ChessPiece
     {
-        /// <summary>
-        /// Gets or sets whether the piece is moved.
-        /// </summary>
-        public bool IsMoved { get; set; }
-
-        private ChessPosition _position;
-
-        public override ChessPosition Position
-        {
-            get { return _position; }
-            set
-            {
-                if (_position != value)
-                {
-                    _position = value;
-                    IsMoved = true;
-                }
-            }
-        }
-
         public override int ValuePoints =>
             throw new NotSupportedException("King has no value as it cannot be captured.");
 
@@ -45,15 +25,12 @@ namespace Chess.ChessPieces
         /// </summary>
         /// <param name="player">The player which the piece belongs to.</param>
         /// <param name="position">The position of piece.</param>
-        public King(PiecePlayer player, ChessPosition position) : base(player, position)
-        {
-            IsMoved = false;
-        }
+        public King(PiecePlayer player, ChessPosition position) : base(player, position) { }
 
         public override List<ChessPosition> GetAvailableMoves()
         {
-            int col = Position.File;
-            int row = Position.Rank;
+            int col = Position.Column;
+            int row = Position.Row;
             List<ChessPosition> moves = new List<ChessPosition>();
 
             for (int i = -1; i <= 1; i++)

@@ -17,60 +17,115 @@ namespace Chess.ChessPieces
     }
 
     /// <summary>
-    /// Represents the position of piece in board.
+    /// Represents the position of piece in chess board.
     /// </summary>
     public class ChessPosition : IEquatable<ChessPosition>
     {
         /// <summary>
-        /// Minimum value of file (column).
+        /// Minimum value of column.
         /// </summary>
-        public const int MinFile = 1;
+        public const int MinColumn = 1;
 
         /// <summary>
-        /// Maximum value of file (column).
+        /// Maximum value of column.
         /// </summary>
-        public const int MaxFile = 8;
+        public const int MaxColumn = 8;
+
+        private int _column;
 
         /// <summary>
-        /// Gets the file (column) value of this <c>ChessPosition</c>.
+        /// Gets or sets the column value of this <c>ChessPosition</c>.
         /// </summary>
-        public int File { get; }
+        public int Column
+        {
+            get { return _column; }
+            set
+            {
+                if (value < MinColumn || value > MaxColumn)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value),
+                        $"Chess position column must be between {MinColumn} and {MaxColumn}.");
+                }
+                _column = value;
+                IsMoved = true;
+            }
+        }
 
         /// <summary>
-        /// Minimum value of rank (row).
+        /// Gets or sets the file of this <c>ChessPosition</c>.
         /// </summary>
-        public const int MinRank = 1;
+        public char File
+        {
+            get { return ColumnToFile(_column); }
+            set
+            {
+                Column = FileToColumn(value);
+            }
+        }
 
         /// <summary>
-        /// Maximum value of rank (row).
+        /// Minimum value of row.
         /// </summary>
-        public const int MaxRank = 8;
+        public const int MinRow = 1;
 
         /// <summary>
-        /// Gets the rank (row) value of this <c>Position</c>.
+        /// Maximum value of row.
         /// </summary>
-        public int Rank { get; }
+        public const int MaxRow = 8;
+
+        private int _row;
 
         /// <summary>
-        /// Initializes a new instance of the <c>Position</c> class.
+        /// Gets or sets the row value of this <c>Position</c>.
+        /// </summary>
+        public int Row
+        {
+            get { return _row; }
+            set
+            {
+                if (value < MinRow || value > MaxRow)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value),
+                        $"Chess piece position row must be between {MinColumn} and {MaxColumn}.");
+                }
+                _row = value;
+                IsMoved = true;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the rank of this <c>Position</c>.
+        /// </summary>
+        public int Rank
+        {
+            get { return _row; }
+            set { Row = value; }
+        }
+
+        public bool IsMoved { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <c>Position</c> class by column and row number.
+        /// </summary>
+        /// <param name="column">The column of where piece is located.</param>
+        /// <param name="row">The row of where piece is located.</param>
+        public ChessPosition(int column, int row)
+        {
+            Column = column;
+            Row = row;
+            IsMoved = false;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <c>Position</c> class by file and rank.
         /// </summary>
         /// <param name="file">The file (column) of where piece is located.</param>
         /// <param name="rank">The rank (row) of where piece is located.</param>
-        public ChessPosition(int file, int rank)
+        public ChessPosition(char file, int rank)
         {
-            if (file < MinFile || file > MaxFile)
-            {
-                throw new ArgumentOutOfRangeException(nameof(file),
-                    $"Chess position file must be between {MinFile} and {MaxFile}.");
-            }
-            if (rank < MinRank || rank > MaxRank)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rank),
-                    $"Chess piece position rank must be between {MinFile} and {MaxFile}.");
-            }
-
             File = file;
             Rank = rank;
+            IsMoved = false;
         }
 
         /// <summary>
@@ -79,7 +134,7 @@ namespace Chess.ChessPieces
         /// <returns>The string representation of position.</returns>
         public override string ToString()
         {
-            return (char)(File + 'a' - 1) + Rank.ToString();
+            return (char)(Column + 'a' - 1) + Row.ToString();
         }
 
         public override bool Equals(object obj)
@@ -90,15 +145,15 @@ namespace Chess.ChessPieces
         public bool Equals(ChessPosition other)
         {
             return other != null &&
-                   File == other.File &&
-                   Rank == other.Rank;
+                   Column == other.Column &&
+                   Row == other.Row;
         }
 
         public override int GetHashCode()
         {
             int hashCode = 656739706;
-            hashCode = hashCode * -1521134295 + File.GetHashCode();
-            hashCode = hashCode * -1521134295 + Rank.GetHashCode();
+            hashCode = hashCode * -1521134295 + Column.GetHashCode();
+            hashCode = hashCode * -1521134295 + Row.GetHashCode();
             return hashCode;
         }
 
@@ -110,6 +165,27 @@ namespace Chess.ChessPieces
         public static bool operator !=(ChessPosition left, ChessPosition right)
         {
             return !(left == right);
+        }
+
+        /// <summary>
+        /// Converts a column to corresponding file.
+        /// </summary>
+        /// <param name="column">The number of column.</param>
+        /// <returns>The file letter of <paramref name="column"/>.</returns>
+        public static char ColumnToFile(int column)
+        {
+            return (char)('a' + column - 1);
+        }
+
+        /// <summary>
+        /// Converts a file to corresponding column.
+        /// </summary>
+        /// <param name="file">The letter of file.</param>
+        /// <returns>The column number of <paramref name="file"/>.</returns>
+        public static int FileToColumn(char file)
+        {
+            int column = file - 'a' + 1;
+            return column;
         }
     }
 
@@ -124,9 +200,9 @@ namespace Chess.ChessPieces
         public PiecePlayer Player { get; }
         
         /// <summary>
-        /// Gets or Sets the position of piece.
+        /// Gets the position of piece.
         /// </summary>
-        public virtual ChessPosition Position { get; set; }
+        public ChessPosition Position { get; }
 
         /// <summary>
         /// Gets the value of current piece.

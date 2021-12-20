@@ -22,8 +22,8 @@ namespace Chess.ChessPieces
 
         public override List<ChessPosition> GetAvailableMoves()
         {
-            int col = Position.File;
-            int row = Position.Rank;
+            int col = Position.Column;
+            int row = Position.Row;
             List<ChessPosition> moves = new List<ChessPosition>();
 
             for (int i = 0; i < 8; i++)

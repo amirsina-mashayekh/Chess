@@ -16,33 +16,28 @@ namespace Chess.ChessPieces
 
         public Queen(PiecePlayer player, ChessPosition position) : base(player, position) { }
 
-        public override string ToString()
-        {
-            return "Queen, " + base.ToString();
-        }
-
         public override List<ChessPosition> GetAvailableMoves()
         {
-            int col = Position.File;
-            int row = Position.Rank;
+            int col = Position.Column;
+            int row = Position.Row;
             List<ChessPosition> moves = new List<ChessPosition>();
 
-            for (int i = ChessPosition.MinFile; i <= ChessPosition.MaxFile; i++)
+            for (int i = ChessPosition.MinColumn; i <= ChessPosition.MaxColumn; i++)
             {
                 if (i == col) { continue; }
                 moves.Add(new ChessPosition(i, row));
             }
 
-            for (int i = ChessPosition.MinRank; i <= ChessPosition.MaxRank; i++)
+            for (int i = ChessPosition.MinRow; i <= ChessPosition.MaxRow; i++)
             {
                 if (i == row) { continue; }
                 moves.Add(new ChessPosition(col, i));
                 int rowDiff = Math.Abs(i - row);
-                if (col - rowDiff >= ChessPosition.MinFile)
+                if (col - rowDiff >= ChessPosition.MinColumn)
                 {
                     moves.Add(new ChessPosition(col - rowDiff, i));
                 }
-                if (col + rowDiff <= ChessPosition.MaxFile)
+                if (col + rowDiff <= ChessPosition.MaxColumn)
                 {
                     moves.Add(new ChessPosition(col + rowDiff, i));
                 }
