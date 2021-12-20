@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chess.ChessPieces
 {
-    internal class King : ChessPiece
+    public class King : ChessPiece
     {
         public override int ValuePoints =>
             throw new NotSupportedException("King has no value as it cannot be captured.");
@@ -25,9 +25,9 @@ namespace Chess.ChessPieces
         /// </summary>
         /// <param name="player">The player which the piece belongs to.</param>
         /// <param name="position">The position of piece.</param>
-        public King(PiecePlayer player, ChessPosition position) : base(player, position) { }
+        public King(ChessPlayer player, ChessPosition position) : base(player, position) { }
 
-        public override List<ChessPosition> GetAvailableMoves()
+        public override List<ChessPosition> GetMoves()
         {
             int col = Position.Column;
             int row = Position.Row;

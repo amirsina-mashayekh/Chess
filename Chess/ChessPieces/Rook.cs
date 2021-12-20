@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chess.ChessPieces
 {
-    internal class Rook : ChessPiece
+    public class Rook : ChessPiece
     {
         public override int ValuePoints => 5;
 
@@ -14,9 +14,9 @@ namespace Chess.ChessPieces
 
         public override char Letter => 'R';
 
-        public Rook(PiecePlayer player, ChessPosition position) : base(player, position) { }
+        public Rook(ChessPlayer player, ChessPosition position) : base(player, position) { }
 
-        public override List<ChessPosition> GetAvailableMoves()
+        public override List<ChessPosition> GetMoves()
         {
             int col = Position.Column;
             int row = Position.Row;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chess.ChessPieces
 {
-    internal class Pawn : ChessPiece
+    public class Pawn : ChessPiece
     {
         public override int ValuePoints => 1;
 
@@ -14,19 +14,19 @@ namespace Chess.ChessPieces
 
         public override char Letter => 'P';
 
-        public Pawn(PiecePlayer player, ChessPosition position) : base(player, position) { }
+        public Pawn(ChessPlayer player, ChessPosition position) : base(player, position) { }
 
-        public override List<ChessPosition> GetAvailableMoves()
+        public override List<ChessPosition> GetMoves()
         {
             int col = Position.Column;
             int row = Position.Row;
-            int dir = Player == PiecePlayer.White? 1 : -1;
+            int dir = Player == ChessPlayer.White? 1 : -1;
             List<ChessPosition> moves = new List<ChessPosition>
             {
                 new ChessPosition(col, row + dir * 1)
             };
 
-            if (Position.IsMoved)
+            if (!Position.IsMoved)
             {
                 moves.Add(new ChessPosition(col, row + dir * 2));
             }

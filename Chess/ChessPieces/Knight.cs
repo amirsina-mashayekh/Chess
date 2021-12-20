@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chess.ChessPieces
 {
-    internal class Knight : ChessPiece
+    public class Knight : ChessPiece
     {
         public override int ValuePoints => 3;
 
@@ -14,13 +14,13 @@ namespace Chess.ChessPieces
 
         public override char Letter => 'N';
 
-        public Knight(PiecePlayer player, ChessPosition position) : base(player, position) { }
+        public Knight(ChessPlayer player, ChessPosition position) : base(player, position) { }
 
         private static readonly int[] rowMoves = new int[] { 1, 2, 2, 1, -1, -2, -2, -1 };
 
         private static readonly int[] colMoves = new int[] { -2, -1, 1, 2, 2, 1, -1, -2 };
 
-        public override List<ChessPosition> GetAvailableMoves()
+        public override List<ChessPosition> GetMoves()
         {
             int col = Position.Column;
             int row = Position.Row;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chess.ChessPieces
 {
-    internal class Bishop : ChessPiece
+    public class Bishop : ChessPiece
     {
         public override int ValuePoints => 3;
 
@@ -14,9 +14,9 @@ namespace Chess.ChessPieces
 
         public override char Letter => 'B';
 
-        public Bishop(PiecePlayer player, ChessPosition position) : base(player, position) { }
+        public Bishop(ChessPlayer player, ChessPosition position) : base(player, position) { }
 
-        public override List<ChessPosition> GetAvailableMoves()
+        public override List<ChessPosition> GetMoves()
         {
             int col = Position.Column;
             int row = Position.Row;

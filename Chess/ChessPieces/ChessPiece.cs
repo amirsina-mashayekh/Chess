@@ -10,7 +10,7 @@ namespace Chess.ChessPieces
     /// <summary>
     /// Specifies the player which the piece belongs to.
     /// </summary>
-    public enum PiecePlayer
+    public enum ChessPlayer
     {
         White,
         Black
@@ -192,12 +192,12 @@ namespace Chess.ChessPieces
     /// <summary>
     /// Base class for chess pieces.
     /// </summary>
-    internal abstract class ChessPiece
+    public abstract class ChessPiece
     {
         /// <summary>
         /// Gets the player which the piece belongs to.
         /// </summary>
-        public PiecePlayer Player { get; }
+        public ChessPlayer Player { get; }
         
         /// <summary>
         /// Gets the position of piece.
@@ -229,7 +229,7 @@ namespace Chess.ChessPieces
         /// </summary>
         /// <param name="player">The player which the piece belongs to.</param>
         /// <param name="position">The position of piece.</param>
-        public ChessPiece(PiecePlayer player, ChessPosition position)
+        public ChessPiece(ChessPlayer player, ChessPosition position)
         {
             Player = player;
             Position = position;
@@ -252,6 +252,6 @@ namespace Chess.ChessPieces
         /// Returns the available moves for current piece.
         /// </summary>
         /// <returns>The available moves for current piece.</returns>
-        public abstract List<ChessPosition> GetAvailableMoves();
+        public abstract List<ChessPosition> GetMoves();
     }
 }
