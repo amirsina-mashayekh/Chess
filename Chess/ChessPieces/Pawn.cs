@@ -20,7 +20,7 @@ namespace Chess.ChessPieces
         {
             int col = Position.Column;
             int row = Position.Row;
-            int dir = Player == ChessPlayer.White? 1 : -1;
+            int dir = Player == ChessPlayer.White ? 1 : -1;
             List<ChessPosition> moves = new List<ChessPosition>
             {
                 new ChessPosition(col, row + dir * 1)
@@ -34,7 +34,7 @@ namespace Chess.ChessPieces
             {
                 moves.Add(new ChessPosition(col + 1, row + dir * 1));
             }
-            if (col - 1 <= ChessPosition.MaxColumn)
+            if (col - 1 >= ChessPosition.MinColumn)
             {
                 moves.Add(new ChessPosition(col - 1, row + dir * 1));
             }

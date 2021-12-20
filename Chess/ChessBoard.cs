@@ -10,7 +10,7 @@ namespace Chess
     public class ChessBoard
     {
         /// <summary>
-        /// Collection of all game pieces.
+        /// Collection of all board pieces.
         /// </summary>
         public readonly ChessPiece[] Pieces = new ChessPiece[]
         {
@@ -48,41 +48,21 @@ namespace Chess
             new Pawn(ChessPlayer.Black, new ChessPosition('h', 7))
         };
 
-        public bool InCheck(ChessPlayer player)
-        {
-            King king = null;
-
-            foreach (King k in Pieces)
-            {
-                if (k.Player == player)
-                {
-                    king = k;
-                    break;
-                }
-            }
-
-            List<ChessPiece> opponetPieces = Pieces.Where(piece => piece.Player != player).ToList();
-            foreach (ChessPiece piece in opponetPieces)
-            {
-                List<ChessPosition> moves = AvailableMoves(piece);
-                foreach (ChessPosition move in moves)
-                {
-                    if (move == king.Position)
-                    {
-                        if (piece is Knight) { return true; }
-                    }
-                }
-            }
-            return false;
-        }
-
+        /// <summary>
+        /// Gets the piece which occupies a position.
+        /// </summary>
+        /// <param name="position">The position to be checked.</param>
+        /// <returns>
+        /// The piece in <paramref name="position"/>.
+        /// <c>null</c> if there is no piece in <paramref name="position"/>.
+        /// </returns>
         public ChessPiece GetPositionOccupier(ChessPosition position)
         {
             ChessPiece piece = null;
 
             foreach (ChessPiece p in Pieces)
             {
-                if (p.Position == position)
+                if (!p.IsCaptured && p.Position == position)
                 {
                     piece = p;
                     break;
@@ -92,6 +72,13 @@ namespace Chess
             return piece;
         }
 
+        /// <summary>
+        /// Gets the available moves for a piece.
+        /// </summary>
+        /// <param name="piece">The piece to be checked.</param>
+        /// <returns>
+        /// A list of <c>ChessPosition</c>s containing available moves for <paramref name="piece"/>.
+        /// </returns>
         public List<ChessPosition> AvailableMoves(ChessPiece piece)
         {
             List<ChessPosition> moves = piece.GetMoves();
@@ -120,14 +107,14 @@ namespace Chess
                     {
                         // Check horizontally
                         moves
-                            .Where(m => !IsBetween(pcc, occ, m.Column)).ToList()
+                            .Where(m => IsAfterEnd(pcc, occ, m.Column)).ToList()
                             .ForEach(m => moves.Remove(m));
                     }
                     else if (pcc == occ)
                     {
                         // Check vertically
                         moves
-                            .Where(m => !IsBetween(pcr, ocr, m.Row)).ToList().
+                            .Where(m => IsAfterEnd(pcr, ocr, m.Row)).ToList().
                             ForEach(m => moves.Remove(m));
                     }
                 }
@@ -137,7 +124,7 @@ namespace Chess
                     if (pcr - pcc == ocr - occ || pcr + pcc == ocr + occ)
                     {
                         moves
-                            .Where(m => !IsBetween(pcr, ocr, m.Row)).ToList().
+                            .Where(m => IsAfterEnd(pcr, ocr, m.Row) && IsAfterEnd(pcc, occ, m.Column)).ToList().
                             ForEach(m => moves.Remove(m));
                     }
                 }
@@ -151,11 +138,44 @@ namespace Chess
             return moves;
         }
 
-        public bool IsBetween(int num1, int num2, int check)
+        /// <summary>
+        /// Checks if a number is after two numbers (ray line form).
+        /// </summary>
+        /// <param name="start">Start number.</param>
+        /// <param name="end">End number.</param>
+        /// <param name="check">The number to be checked.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="check"/> is after both <paramref name="start"/> and <paramref name="end"/>
+        /// <c>false</c> otherwise.
+        /// </returns>
+        private bool IsAfterEnd(int start, int end, int check)
         {
-            return num1 != check
-                && num2 != check
-                && Math.Abs(num1 - check) + Math.Abs(num2 - check) == Math.Abs(num1 - num2);
+            if (start < end) { return check > end; }
+            else if (start > end) { return check < end; }
+            else { return false; }
+        }
+
+        /// <summary>
+        /// Checks if <paramref name="player"/>'s king is in check.
+        /// </summary>
+        /// <param name="player">The player to be checked.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="player"/>'s king is in check. <c>false</c> otherwise.
+        /// </returns>
+        public bool InCheck(ChessPlayer player)
+        {
+            King king = Pieces.Where(p => p is King && p.Player == player).Single() as King;
+
+            List<ChessPiece> opponetPieces = Pieces.Where(p => !p.IsCaptured && p.Player != player).ToList();
+            foreach (ChessPiece piece in opponetPieces)
+            {
+                List<ChessPosition> moves = AvailableMoves(piece);
+                foreach (ChessPosition move in moves)
+                {
+                    if (move == king.Position) { return true; }
+                }
+            }
+            return false;
         }
     }
 }
