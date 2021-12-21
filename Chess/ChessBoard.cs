@@ -58,18 +58,21 @@ namespace Chess
         /// </returns>
         public ChessPiece GetPositionOccupier(ChessPosition position)
         {
-            ChessPiece piece = null;
+            return Pieces.SingleOrDefault(p => !p.IsCaptured && p.Position == position);
+        }
 
-            foreach (ChessPiece p in Pieces)
-            {
-                if (!p.IsCaptured && p.Position == position)
-                {
-                    piece = p;
-                    break;
-                }
-            }
-
-            return piece;
+        /// <summary>
+        /// Gets the piece which occupies a position with specified file and rank.
+        /// </summary>
+        /// <param name="file">The file of position.</param>
+        /// <param name="rank">The rank of position.</param>
+        /// <returns>
+        /// The piece in <paramref name="file"/> and <paramref name="rank"/>.
+        /// <c>null</c> if there is no piece in position.
+        /// </returns>
+        public ChessPiece GetPositionOccupier(char file, int rank)
+        {
+            return GetPositionOccupier(new ChessPosition(file, rank));
         }
 
         /// <summary>
@@ -82,40 +85,35 @@ namespace Chess
         public List<ChessPosition> AvailableMoves(ChessPiece piece)
         {
             List<ChessPosition> moves = piece.GetMoves();
+            int pcr = piece.Position.Row;
+            int pcc = piece.Position.Column;
 
-            for (int i = 0; i < moves.Count; i++)
+            foreach (ChessPosition move in moves.ToList())
             {
-                ChessPosition move = moves[i];
+                if (!moves.Contains(move)) { continue; }
                 ChessPiece occupier = GetPositionOccupier(move);
 
                 if (occupier is null) { continue; }
 
-                if (occupier.Player == piece.Player)
-                {
-                    moves.Remove(move);
-                    i--;
-                }
+                if (occupier.Player == piece.Player) { moves.Remove(move); }
 
-                int pcr = piece.Position.Row;
-                int pcc = piece.Position.Column;
-                int ocr = occupier.Position.Row;
-                int occ = occupier.Position.Column;
-
+                int ocr = move.Row;
+                int occ = move.Column;
                 if (piece is Rook || piece is Queen)
                 {
                     if (pcr == ocr)
                     {
                         // Check horizontally
                         moves
-                            .Where(m => IsAfterEnd(pcc, occ, m.Column)).ToList()
+                            .Where(m => m.Row == pcr && IsAfterEnd(pcc, occ, m.Column)).ToList()
                             .ForEach(m => moves.Remove(m));
                     }
                     else if (pcc == occ)
                     {
                         // Check vertically
                         moves
-                            .Where(m => IsAfterEnd(pcr, ocr, m.Row)).ToList().
-                            ForEach(m => moves.Remove(m));
+                            .Where(m => m.Column == pcc && IsAfterEnd(pcr, ocr, m.Row)).ToList()
+                            .ForEach(m => moves.Remove(m));
                     }
                 }
                 if (piece is Bishop || piece is Queen)
@@ -124,14 +122,15 @@ namespace Chess
                     if (pcr - pcc == ocr - occ || pcr + pcc == ocr + occ)
                     {
                         moves
-                            .Where(m => IsAfterEnd(pcr, ocr, m.Row) && IsAfterEnd(pcc, occ, m.Column)).ToList().
-                            ForEach(m => moves.Remove(m));
+                            .Where(m => IsAfterEnd(pcr, ocr, m.Row) && IsAfterEnd(pcc, occ, m.Column))
+                            .ToList()
+                            .ForEach(m => moves.Remove(m));
                     }
                 }
                 if (piece is Pawn && pcc == occ && occupier.Player != piece.Player)
                 {
+                    // Pawn cannot attack vertically
                     moves.Remove(move);
-                    i--;
                 }
             }
 
@@ -164,7 +163,7 @@ namespace Chess
         /// </returns>
         public bool InCheck(ChessPlayer player)
         {
-            King king = Pieces.Where(p => p is King && p.Player == player).Single() as King;
+            King king = Pieces.Single(p => p is King && p.Player == player) as King;
 
             List<ChessPiece> opponetPieces = Pieces.Where(p => !p.IsCaptured && p.Player != player).ToList();
             foreach (ChessPiece piece in opponetPieces)
@@ -176,6 +175,91 @@ namespace Chess
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Gets the valid moves from available moves of a piece.
+        /// </summary>
+        /// <param name="piece">The piece to be checked.</param>
+        /// <returns>
+        /// A list of <c>ChessPosition</c>s containing valid moves for <paramref name="piece"/>.
+        /// </returns>
+        public List<ChessPosition> ValidMoves(ChessPiece piece)
+        {
+            List<ChessPosition> moves = AvailableMoves(piece);
+            bool moved = piece.Position.IsMoved;
+            int r = piece.Position.Row;
+            int c = piece.Position.Column;
+
+            // Check for check! (=
+            for (int i = 0; i < moves.Count; i++)
+            {
+                ChessPosition move = moves[i];
+                ChessPiece occ = GetPositionOccupier(move);
+                if (!(occ is null)) { occ.IsCaptured = true; }
+
+                piece.Position.Row = move.Row;
+                piece.Position.Column = move.Column;
+                if (InCheck(piece.Player))
+                {
+                    moves.RemoveAt(i);
+                    i--;
+                }
+                if (!(occ is null)) { occ.IsCaptured = false; }
+            }
+
+            // Reset piece position
+            piece.Position.Row = r;
+            piece.Position.Column = c;
+            piece.Position.IsMoved = moved;
+            // Check for castling
+            if (piece is King && !piece.Position.IsMoved && !InCheck(piece.Player))
+            {
+                List<ChessPiece> rooks = Pieces
+                    .Where(p => p is Rook
+                                && p.Player == piece.Player
+                                && !piece.IsCaptured)
+                    .ToList();
+
+                foreach (ChessPiece rook in rooks)
+                {
+                    if (rook.Position.IsMoved) { continue; }
+                    int dir = rook.Position.Column > c ? 1 : -1;
+                    if (moves.Exists(p => p.Column == c + dir && p.Row == r))
+                    {
+                        ChessPosition lc = new ChessPosition(c + dir * 2, r);
+                        if (GetPositionOccupier(lc) is null)
+                        {
+                            piece.Position.Column = lc.Column;
+                            if (!InCheck(piece.Player))
+                            {
+                                moves.Add(lc);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Check for pawn moves
+            if (piece is Pawn)
+            {
+                ChessPosition dRight = new ChessPosition(c + 1, r + 1);
+                ChessPosition dLeft = new ChessPosition(c - 1, r + 1);
+                moves
+                    .Where(p => (p == dRight && GetPositionOccupier(dRight) is null)
+                                || (p == dLeft && GetPositionOccupier(dLeft) is null))
+                    .ToList()
+                    .ForEach(m => moves.Remove(m));
+            }
+
+            // Check for En passant
+            // TODO: Implement
+
+            // Reset piece position
+            piece.Position.Row = r;
+            piece.Position.Column = c;
+            piece.Position.IsMoved = moved;
+            return moves;
         }
     }
 }

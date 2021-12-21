@@ -102,7 +102,10 @@ namespace Chess.ChessPieces
             set { Row = value; }
         }
 
-        public bool IsMoved { get; private set; }
+        /// <summary>
+        /// Gets or sets whether the position is changed from initial value.
+        /// </summary>
+        public bool IsMoved { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <c>Position</c> class by column and row number.
