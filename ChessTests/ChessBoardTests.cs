@@ -175,5 +175,33 @@ namespace Chess.Tests
             PrintBoard(board);
             Assert.AreEqual(0, board.ValidMoves(wdPanw).Count);
         }
+
+        [TestMethod()]
+        public void MovePieceTest()
+        {
+            ChessBoard board = new ChessBoard();
+            Queen bQueen = board.GetPositionOccupier('d', 8) as Queen;
+
+            Assert.ThrowsException<ArgumentException>(() => board.MovePiece(bQueen, 'e', 6));
+
+            bQueen.Position.File = 'e';
+            bQueen.Position.Rank = 6;
+            Pawn wePawn = board.GetPositionOccupier('e', 2) as Pawn;
+            board.MovePiece(bQueen, wePawn.Position.Column, wePawn.Position.Row);
+            PrintBoard(board);
+            Assert.IsTrue(wePawn.IsCaptured);
+            Assert.IsTrue(board.InCheck(ChessPlayer.White));
+
+            King wKing = board.GetPositionOccupier('e', 1) as King;
+            Assert.ThrowsException<ArgumentException>(() => board.MovePiece(wKing, 'f', 1));
+            board.MovePiece(wKing, 'e', 2);
+            PrintBoard(board);
+            Assert.IsTrue(bQueen.IsCaptured);
+
+            board.MovePiece(wKing, 'e', 3);
+            PrintBoard(board);
+
+            // TODO: En passant
+        }
     }
 }

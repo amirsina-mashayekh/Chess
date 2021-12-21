@@ -261,5 +261,49 @@ namespace Chess
             piece.Position.IsMoved = moved;
             return moves;
         }
+
+        /// <summary>
+        /// Moves a piece to a position.
+        /// </summary>
+        /// <param name="piece">The piece to be moved.</param>
+        /// <param name="column">The column of destination position.</param>
+        /// <param name="row">The row of destination position.</param>
+        /// <exception cref="ArgumentException">Move is not valid.</exception>
+        public void MovePiece(ChessPiece piece, int column, int row)
+        {
+            if (!ValidMoves(piece).Any(p => p.Column == column && p.Row == row))
+            {
+                throw new ArgumentException("Piece must be moved to a valid position.");
+            }
+
+            // Capture pieces if needed
+            ChessPiece occupier = GetPositionOccupier(new ChessPosition(column, row));
+            if (!(occupier is null))
+            {
+                occupier.IsCaptured = true;
+            }
+            else if (piece is Pawn && column != piece.Position.Column)
+            {
+                // Pawn is moving diagonally to an empty position
+                // which means En passant is being performed.
+                GetPositionOccupier(new ChessPosition(column, piece.Position.Row)).IsCaptured = true;
+            }
+
+            // Change piece position
+            piece.Position.Column = column;
+            piece.Position.Row = row;
+        }
+
+        /// <summary>
+        /// Moves a piece to a position.
+        /// </summary>
+        /// <param name="piece">The piece to be moved.</param>
+        /// <param name="file">The file of destination position.</param>
+        /// <param name="rank">The rank of destination position.</param>
+        /// <exception cref="ArgumentException">Move is not valid.</exception>
+        public void MovePiece(ChessPiece piece, char file, int rank)
+        {
+            MovePiece(piece, ChessPosition.FileToColumn(file), rank);
+        }
     }
 }
