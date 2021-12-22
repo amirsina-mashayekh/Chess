@@ -40,11 +40,10 @@ namespace Chess.ChessPieces
                     int c = col + j;
                     int r = row + i;
                     if (i == 0 && j == 0) { continue; }
-                    try
+                    if (ChessPosition.ColumnIsValid(c) && ChessPosition.RowIsValid(r))
                     {
                         moves.Add(new ChessPosition(c, r));
                     }
-                    catch (ArgumentOutOfRangeException) { }
                 }
             }
 

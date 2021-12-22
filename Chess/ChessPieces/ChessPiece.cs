@@ -41,7 +41,7 @@ namespace Chess.ChessPieces
             get { return _column; }
             set
             {
-                if (value < MinColumn || value > MaxColumn)
+                if (!ColumnIsValid(value))
                 {
                     throw new ArgumentOutOfRangeException(nameof(value),
                         $"Chess position column must be between {MinColumn} and {MaxColumn}.");
@@ -83,7 +83,7 @@ namespace Chess.ChessPieces
             get { return _row; }
             set
             {
-                if (value < MinRow || value > MaxRow)
+                if (!RowIsValid(value))
                 {
                     throw new ArgumentOutOfRangeException(nameof(value),
                         $"Chess piece position row must be between {MinColumn} and {MaxColumn}.");
@@ -189,6 +189,26 @@ namespace Chess.ChessPieces
         {
             int column = file - 'a' + 1;
             return column;
+        }
+
+        /// <summary>
+        /// Determines if <paramref name="column"/> is in board range.
+        /// </summary>
+        /// <param name="column">The column value to be checked.</param>
+        /// <returns></returns>
+        public static bool ColumnIsValid(int column)
+        {
+            return !(column < MinColumn || column > MaxColumn);
+        }
+
+        /// <summary>
+        /// Determines if <paramref name="row"/> is in board range.
+        /// </summary>
+        /// <param name="row">The row value to be checked.</param>
+        /// <returns></returns>
+        public static bool RowIsValid(int row)
+        {
+            return !(row < MinRow || row > MaxRow);
         }
     }
 

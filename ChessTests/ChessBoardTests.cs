@@ -208,5 +208,88 @@ namespace Chess.Tests
 
             // TODO: En passant
         }
+
+        [TestMethod()]
+        public void CheckMateTest()
+        {
+            ChessBoard board = new ChessBoard();
+            foreach (ChessPiece piece in board.Pieces)
+            {
+                if (!(piece is King) && !(piece is Queen))
+                {
+                    piece.IsCaptured = true;
+                }
+            }
+
+            King wKing = board.GetPositionOccupier('e', 1) as King;
+            King bKing = board.GetPositionOccupier('e', 8) as King;
+            Queen bQueen = board.GetPositionOccupier('d', 8) as Queen;
+
+            board.MovePiece(wKing, 'f', 1);
+            board.MovePiece(bKing, 'f', 7);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'g', 6);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bKing, 'g', 5);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'h', 4);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bKing, 'h', 3);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bQueen, 'd', 2);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bQueen, 'h', 2);
+            PrintBoard(board);
+            Assert.IsTrue(board.Ended);
+            Assert.IsTrue(board.MovesHistory.Last.Value.EndsWith("#"));
+            Assert.ThrowsException<InvalidOperationException>(() => board.MovePiece('d', 1, 'd', 8));
+        }
+
+        [TestMethod()]
+        public void StaleMateTest()
+        {
+            ChessBoard board = new ChessBoard();
+            foreach (ChessPiece piece in board.Pieces)
+            {
+                if (!(piece is King) && !(piece is Queen))
+                {
+                    piece.IsCaptured = true;
+                }
+            }
+
+            King wKing = board.GetPositionOccupier('e', 1) as King;
+            King bKing = board.GetPositionOccupier('e', 8) as King;
+            Queen bQueen = board.GetPositionOccupier('d', 8) as Queen;
+
+            board.MovePiece(wKing, 'e', 2);
+            board.MovePiece(bKing, 'f', 7);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'f', 1);
+            board.MovePiece(bKing, 'g', 6);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'g', 5);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bKing, 'h', 4);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'h', 3);
+            PrintBoard(board);
+            board.MovePiece('d', 1, 'd', 3);
+            board.MovePiece(bQueen, 'd', 3);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bQueen, 'g', 3);
+            PrintBoard(board);
+            Assert.IsTrue(board.Ended);
+            Assert.IsFalse(board.MovesHistory.Last.Value.EndsWith("#"));
+        }
     }
 }

@@ -10,25 +10,6 @@ namespace Chess
     public class ChessBoard
     {
         /// <summary>
-        /// The player whose turn it is to move.
-        /// </summary>
-        public ChessPlayer Turn { get; private set; } = ChessPlayer.White;
-
-        /// <summary>
-        /// Toggles player turn.
-        /// </summary>
-        public void ToggleTurn()
-        {
-            if (Turn == ChessPlayer.White) { Turn = ChessPlayer.Black; }
-            else { Turn = ChessPlayer.White; }
-        }
-
-        /// <summary>
-        /// History of moves.
-        /// </summary>
-        public readonly LinkedList<string> MovesHistory = new LinkedList<string>();
-
-        /// <summary>
         /// Collection of all board pieces.
         /// </summary>
         public readonly ChessPiece[] Pieces = new ChessPiece[]
@@ -66,6 +47,30 @@ namespace Chess
             new Pawn(ChessPlayer.Black, new ChessPosition('g', 7)),
             new Pawn(ChessPlayer.Black, new ChessPosition('h', 7))
         };
+
+        /// <summary>
+        /// The player whose turn it is to move.
+        /// </summary>
+        public ChessPlayer Turn { get; private set; } = ChessPlayer.White;
+
+        /// <summary>
+        /// Toggles player turn.
+        /// </summary>
+        public void ToggleTurn()
+        {
+            if (Turn == ChessPlayer.White) { Turn = ChessPlayer.Black; }
+            else { Turn = ChessPlayer.White; }
+        }
+
+        /// <summary>
+        /// Gets whether game is finished.
+        /// </summary>
+        public bool Ended { get; private set; } = false;
+
+        /// <summary>
+        /// History of moves.
+        /// </summary>
+        public readonly LinkedList<string> MovesHistory = new LinkedList<string>();
 
         /// <summary>
         /// Gets the piece which occupies a position.
@@ -286,6 +291,11 @@ namespace Chess
         /// <param name="row">The row of destination position.</param>
         public void MovePiece(ChessPiece piece, int column, int row)
         {
+            if (Ended)
+            {
+                throw new InvalidOperationException("Cannot move pieces after the end of game.");
+            }
+
             if (piece.Player != Turn)
             {
                 throw new InvalidOperationException("Tried to move piece out of its turn.");
@@ -323,8 +333,18 @@ namespace Chess
             piece.Position.Column = column;
             piece.Position.Row = row;
 
-            MovesHistory.AddLast(moveStr.ToString());
             ToggleTurn();
+            // Check status
+            bool inCheck = InCheck(Turn);
+            if (!Pieces.Any(p => !p.IsCaptured && p.Player == Turn && ValidMoves(p).Count > 0))
+            {
+                // Either Stalemate or Checkmate
+                if (inCheck) { moveStr.Append('#'); }
+                Ended = true;
+            }
+            else if (inCheck) { moveStr.Append('+'); }
+
+            MovesHistory.AddLast(moveStr.ToString());
         }
 
         /// <summary>

@@ -28,11 +28,12 @@ namespace Chess.ChessPieces
 
             for (int i = 0; i < 8; i++)
             {
-                try
+                int c = col + colMoves[i];
+                int r = row + rowMoves[i];
+                if (ChessPosition.ColumnIsValid(c) && ChessPosition.RowIsValid(r))
                 {
-                    moves.Add(new ChessPosition(col + colMoves[i], row + rowMoves[i]));
+                    moves.Add(new ChessPosition(c, r));
                 }
-                catch (ArgumentOutOfRangeException) { }
             }
 
             return moves;
