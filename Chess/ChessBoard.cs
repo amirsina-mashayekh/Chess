@@ -24,6 +24,11 @@ namespace Chess
         }
 
         /// <summary>
+        /// History of moves.
+        /// </summary>
+        public readonly LinkedList<string> MovesHistory = new LinkedList<string>();
+
+        /// <summary>
         /// Collection of all board pieces.
         /// </summary>
         public readonly ChessPiece[] Pieces = new ChessPiece[]
@@ -210,7 +215,7 @@ namespace Chess
             {
                 ChessPosition move = moves[i];
                 ChessPiece occ = GetPositionOccupier(move);
-                if (!(occ is null)) { occ.IsCaptured = true; }
+                if (occ != null) { occ.IsCaptured = true; }
 
                 piece.Position.Row = move.Row;
                 piece.Position.Column = move.Column;
@@ -219,7 +224,7 @@ namespace Chess
                     moves.RemoveAt(i);
                     i--;
                 }
-                if (!(occ is null)) { occ.IsCaptured = false; }
+                if (occ != null) { occ.IsCaptured = false; }
             }
 
             // Reset piece position
@@ -279,7 +284,6 @@ namespace Chess
         /// <param name="piece">The piece to be moved.</param>
         /// <param name="column">The column of destination position.</param>
         /// <param name="row">The row of destination position.</param>
-        /// <exception cref="ArgumentException">Move is not valid.</exception>
         public void MovePiece(ChessPiece piece, int column, int row)
         {
             if (piece.Player != Turn)
@@ -292,23 +296,34 @@ namespace Chess
                 throw new ArgumentException("Piece must be moved to a valid position.");
             }
 
-            // Capture pieces if needed
+            StringBuilder moveStr = new StringBuilder();
+            moveStr.Append(piece.ShortString);
             ChessPiece occupier = GetPositionOccupier(new ChessPosition(column, row));
-            if (!(occupier is null))
+            if (occupier != null)
             {
+                // Capture piece in destination position
                 occupier.IsCaptured = true;
+                moveStr.Append('x').Append(occupier.ShortString);
             }
             else if (piece is Pawn && column != piece.Position.Column)
             {
                 // Pawn is moving diagonally to an empty position
                 // which means En passant is being performed.
-                GetPositionOccupier(new ChessPosition(column, piece.Position.Row)).IsCaptured = true;
+                Pawn captured = GetPositionOccupier(new ChessPosition(column, piece.Position.Row)) as Pawn;
+                captured.IsCaptured = true;
+                moveStr.Append('x').Append(captured.ShortString);
+            }
+            else
+            {
+                // Normal move
+                moveStr.Append(ChessPosition.ColumnToFile(column)).Append(row);
             }
 
             // Change piece position
             piece.Position.Column = column;
             piece.Position.Row = row;
 
+            MovesHistory.AddLast(moveStr.ToString());
             ToggleTurn();
         }
 
@@ -318,10 +333,29 @@ namespace Chess
         /// <param name="piece">The piece to be moved.</param>
         /// <param name="file">The file of destination position.</param>
         /// <param name="rank">The rank of destination position.</param>
-        /// <exception cref="ArgumentException">Move is not valid.</exception>
         public void MovePiece(ChessPiece piece, char file, int rank)
         {
             MovePiece(piece, ChessPosition.FileToColumn(file), rank);
+        }
+
+        /// <summary>
+        /// Moves a piece from a specified position to another position.
+        /// </summary>
+        /// <param name="srcFile">The file of source position.</param>
+        /// <param name="srcRank">The rank of source position.</param>
+        /// <param name="dstFile">The file of destination position.</param>
+        /// <param name="dstRank">The rank of destination position.</param>
+        /// <exception cref="ArgumentException">There is no piece at source position.</exception>
+        public void MovePiece(char srcFile, int srcRank, char dstFile, int dstRank)
+        {
+            ChessPiece piece = GetPositionOccupier(srcFile, srcRank);
+            if (piece is null)
+            {
+                throw new ArgumentException(
+                    $"There is no piece at {srcFile}{srcRank}.",
+                    nameof(srcFile) + ", " + nameof(srcRank));
+            }
+            MovePiece(piece, ChessPosition.FileToColumn(dstFile), dstRank);
         }
     }
 }

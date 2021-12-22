@@ -252,6 +252,11 @@ namespace Chess.ChessPieces
         }
 
         /// <summary>
+        /// The short string representation of current piece including its letter and position.
+        /// </summary>
+        public string ShortString => Letter + Position.ToString();
+
+        /// <summary>
         /// Returns the available moves for current piece.
         /// </summary>
         /// <returns>The available moves for current piece.</returns>

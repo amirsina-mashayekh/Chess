@@ -184,8 +184,9 @@ namespace Chess.Tests
             Pawn wePawn = board.GetPositionOccupier('e', 2) as Pawn;
 
             Assert.ThrowsException<InvalidOperationException>(() => board.MovePiece(bQueen, 'e', 6));
+            Assert.ThrowsException<ArgumentException>(() => board.MovePiece('a', 3, 'a', 4));
+            board.MovePiece('a', 2, 'a', 4);
             PrintBoard(board);
-            board.MovePiece(board.GetPositionOccupier('a', 2), 'a', 4);
             Assert.ThrowsException<ArgumentException>(() => board.MovePiece(bQueen, 'e', 6));
 
             bQueen.Position.File = 'e';
@@ -201,7 +202,7 @@ namespace Chess.Tests
             PrintBoard(board);
             Assert.IsTrue(bQueen.IsCaptured);
 
-            board.MovePiece(board.GetPositionOccupier('a', 7), 'a', 6);
+            board.MovePiece('a', 7, 'a', 6);
             board.MovePiece(wKing, 'e', 3);
             PrintBoard(board);
 
