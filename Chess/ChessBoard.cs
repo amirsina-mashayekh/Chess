@@ -10,6 +10,20 @@ namespace Chess
     public class ChessBoard
     {
         /// <summary>
+        /// The player whose turn it is to move.
+        /// </summary>
+        public ChessPlayer Turn { get; private set; } = ChessPlayer.White;
+
+        /// <summary>
+        /// Toggles player turn.
+        /// </summary>
+        public void ToggleTurn()
+        {
+            if (Turn == ChessPlayer.White) { Turn = ChessPlayer.Black; }
+            else { Turn = ChessPlayer.White; }
+        }
+
+        /// <summary>
         /// Collection of all board pieces.
         /// </summary>
         public readonly ChessPiece[] Pieces = new ChessPiece[]
@@ -243,11 +257,8 @@ namespace Chess
             // Check for pawn moves
             if (piece is Pawn)
             {
-                ChessPosition dRight = new ChessPosition(c + 1, r + 1);
-                ChessPosition dLeft = new ChessPosition(c - 1, r + 1);
                 moves
-                    .Where(p => (p == dRight && GetPositionOccupier(dRight) is null)
-                                || (p == dLeft && GetPositionOccupier(dLeft) is null))
+                    .Where(p => p.Column != c && GetPositionOccupier(p) is null)
                     .ToList()
                     .ForEach(m => moves.Remove(m));
             }
@@ -271,6 +282,11 @@ namespace Chess
         /// <exception cref="ArgumentException">Move is not valid.</exception>
         public void MovePiece(ChessPiece piece, int column, int row)
         {
+            if (piece.Player != Turn)
+            {
+                throw new InvalidOperationException("Tried to move piece out of its turn.");
+            }
+
             if (!ValidMoves(piece).Any(p => p.Column == column && p.Row == row))
             {
                 throw new ArgumentException("Piece must be moved to a valid position.");
@@ -292,6 +308,8 @@ namespace Chess
             // Change piece position
             piece.Position.Column = column;
             piece.Position.Row = row;
+
+            ToggleTurn();
         }
 
         /// <summary>
