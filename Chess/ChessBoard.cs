@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Chess.ChessPieces;
 
@@ -267,14 +268,38 @@ namespace Chess
             // Check for pawn moves
             if (piece is Pawn)
             {
+                ChessPosition epPos = null;
+                // Check for En passant
+                LinkedListNode<string> lastMoveNode = MovesHistory.Last;
+                if (lastMoveNode != null)
+                {
+                    string lastMove = lastMoveNode.Value;
+                    if (Regex.IsMatch(lastMove, @"^P.\d+.\d+$"))
+                    {
+                        // Last move was a normal (no capture) pawn move
+                        MatchCollection numMatches = Regex.Matches(lastMove, @"\d+");
+                        int src = int.Parse(numMatches[0].Value);
+                        int dst = int.Parse(numMatches[1].Value);
+                        if (Math.Abs(src - dst) == 2)
+                        {
+                            // Pawn moved 2 rows in last move
+                            epPos = new ChessPosition(lastMove[1], dst);
+                        }
+                    }
+                }
+
                 moves
                     .Where(p => p.Column != c && GetPositionOccupier(p) is null)
                     .ToList()
-                    .ForEach(m => moves.Remove(m));
+                    .ForEach(m => 
+                    {
+                        if (!(epPos != null && epPos.Row == r && epPos.Column == m.Column))
+                        {
+                            // No En passant so delete move
+                            moves.Remove(m);
+                        }
+                    });
             }
-
-            // Check for En passant
-            // TODO: Implement
 
             // Reset piece position
             piece.Position.Row = r;

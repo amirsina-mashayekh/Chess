@@ -291,5 +291,25 @@ namespace Chess.Tests
             Assert.IsTrue(board.Ended);
             Assert.IsFalse(board.MovesHistory.Last.Value.EndsWith("#"));
         }
+
+        [TestMethod()]
+        public void EnPassantTest()
+        {
+            ChessBoard board = new ChessBoard();
+            Pawn wbPawn = board.GetPositionOccupier('b', 2) as Pawn;
+            Pawn baPawn = board.GetPositionOccupier('a', 7) as Pawn;
+            Pawn bcPawn = board.GetPositionOccupier('c', 7) as Pawn;
+
+            board.MovePiece(wbPawn, 'b', 4);
+            board.MovePiece(bcPawn, 'c', 5);
+            board.MovePiece(wbPawn, 'b', 5);
+            board.MovePiece(baPawn, 'a', 5);
+            PrintBoard(board);
+            Assert.AreEqual(2, board.ValidMoves(wbPawn).Count);
+            board.MovePiece(wbPawn, 'a', 6);
+            PrintBoard(board);
+            Assert.IsTrue(baPawn.IsCaptured);
+            Assert.AreEqual(2, board.ValidMoves(wbPawn).Count);
+        }
     }
 }
