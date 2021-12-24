@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Chess.ChessPieces
 {
+    /// <summary>
+    /// Represents a knight chess piece.
+    /// </summary>
     public class Knight : ChessPiece
     {
         public override int ValuePoints => 3;

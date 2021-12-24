@@ -220,6 +220,7 @@ namespace Chess.Tests
                     piece.IsCaptured = true;
                 }
             }
+            PrintBoard(board);
 
             King wKing = board.GetPositionOccupier('e', 1) as King;
             King bKing = board.GetPositionOccupier('e', 8) as King;
@@ -247,7 +248,7 @@ namespace Chess.Tests
             board.MovePiece(bQueen, 'h', 2);
             PrintBoard(board);
             Assert.IsTrue(board.Ended);
-            Assert.IsTrue(board.MovesHistory.Last.Value.EndsWith("#"));
+            Assert.IsTrue(board.MovesHistory.Last.Value.Symbols.EndsWith("#"));
             Assert.ThrowsException<InvalidOperationException>(() => board.MovePiece('d', 1, 'd', 8));
         }
 
@@ -262,6 +263,7 @@ namespace Chess.Tests
                     piece.IsCaptured = true;
                 }
             }
+            PrintBoard(board);
 
             King wKing = board.GetPositionOccupier('e', 1) as King;
             King bKing = board.GetPositionOccupier('e', 8) as King;
@@ -289,7 +291,7 @@ namespace Chess.Tests
             board.MovePiece(bQueen, 'g', 3);
             PrintBoard(board);
             Assert.IsTrue(board.Ended);
-            Assert.IsFalse(board.MovesHistory.Last.Value.EndsWith("#"));
+            Assert.IsFalse(board.MovesHistory.Last.Value.Symbols.EndsWith("#"));
         }
 
         [TestMethod()]
@@ -310,6 +312,121 @@ namespace Chess.Tests
             PrintBoard(board);
             Assert.IsTrue(baPawn.IsCaptured);
             Assert.AreEqual(2, board.ValidMoves(wbPawn).Count);
+        }
+
+        [TestMethod()]
+        public void UndoTest()
+        {
+            ChessBoard board = new ChessBoard();
+            foreach (ChessPiece piece in board.Pieces)
+            {
+                if (!(piece is King) && !(piece is Queen))
+                {
+                    piece.IsCaptured = true;
+                }
+            }
+            PrintBoard(board);
+
+            King wKing = board.GetPositionOccupier('e', 1) as King;
+            King bKing = board.GetPositionOccupier('e', 8) as King;
+            Queen bQueen = board.GetPositionOccupier('d', 8) as Queen;
+
+            Assert.ThrowsException<InvalidOperationException>(() => board.Undo());
+
+            board.MovePiece(wKing, 'f', 1);
+            board.MovePiece(bKing, 'f', 7);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'g', 6);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bKing, 'g', 5);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'h', 4);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bKing, 'h', 3);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bQueen, 'd', 2);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bQueen, 'h', 2);
+            PrintBoard(board);
+
+            ChessMove mateMove = board.MovesHistory.Last.Value;
+            Assert.IsTrue(board.Undo());
+            PrintBoard(board);
+            Assert.AreEqual(ChessPlayer.Black, board.Turn);
+            Assert.AreEqual(new ChessPosition('d', 2), bQueen.Position);
+            Assert.IsFalse(board.Ended);
+
+            board.MovePiece(bQueen, 'f', 2);
+            PrintBoard(board);
+            Assert.IsNull(board.MovesHistory.Find(mateMove));
+
+            while (board.Undo()) { PrintBoard(board); }
+            PrintBoard(board);
+            Assert.AreEqual(ChessPlayer.White, board.Turn);
+            Assert.AreEqual(new ChessPosition('e', 1), wKing.Position);
+        }
+
+        [TestMethod()]
+        public void RedoTest()
+        {
+            ChessBoard board = new ChessBoard();
+            foreach (ChessPiece piece in board.Pieces)
+            {
+                if (!(piece is King) && !(piece is Queen))
+                {
+                    piece.IsCaptured = true;
+                }
+            }
+            PrintBoard(board);
+
+            King wKing = board.GetPositionOccupier('e', 1) as King;
+            King bKing = board.GetPositionOccupier('e', 8) as King;
+            Queen bQueen = board.GetPositionOccupier('d', 8) as Queen;
+
+            board.MovePiece(wKing, 'f', 1);
+            board.MovePiece(bKing, 'f', 7);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'g', 6);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bKing, 'g', 5);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bKing, 'h', 4);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bKing, 'h', 3);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'g', 1);
+            board.MovePiece(bQueen, 'd', 2);
+            PrintBoard(board);
+            board.MovePiece(wKing, 'h', 1);
+            board.MovePiece(bQueen, 'h', 2);
+            PrintBoard(board);
+
+            while (board.Undo()) { PrintBoard(board); }
+            PrintBoard(board);
+
+            while (board.Redo()) { PrintBoard(board); }
+            PrintBoard(board);
+            Assert.IsTrue(board.Ended);
+            Assert.IsTrue(board.MovesHistory.Last.Value.Symbols.EndsWith("#"));
+
+            board.Undo();
+            board.Undo();
+            board.Undo();
+            board.Redo();
+            board.MovePiece('d', 1, 'd', 2);
+            PrintBoard(board);
+            Assert.IsTrue(bQueen.IsCaptured);
+            Assert.AreEqual(bQueen, board.MovesHistory.Last.Value.CapturedPiece);
         }
     }
 }

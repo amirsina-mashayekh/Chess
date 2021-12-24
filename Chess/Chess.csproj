@@ -63,8 +63,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ChessBoard.cs" />
+    <Compile Include="ChessMove.cs" />
     <Compile Include="ChessPieces\Bishop.cs" />
     <Compile Include="ChessPieces\ChessPiece.cs" />
+    <Compile Include="ChessPieces\ChessPosition.cs" />
     <Compile Include="ChessPieces\King.cs" />
     <Compile Include="ChessPieces\Knight.cs" />
     <Compile Include="ChessPieces\Pawn.cs" />

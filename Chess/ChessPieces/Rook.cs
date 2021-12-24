@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Chess.ChessPieces
 {
+    /// <summary>
+    /// Represents a rook chess piece.
+    /// </summary>
     public class Rook : ChessPiece
     {
         public override int ValuePoints => 5;

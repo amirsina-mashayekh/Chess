@@ -8,51 +8,21 @@ using Chess.ChessPieces;
 
 namespace Chess
 {
+    /// <summary>
+    /// Represents a chess board.
+    /// Provides methods to manage chess board.
+    /// </summary>
     public class ChessBoard
     {
         /// <summary>
         /// Collection of all board pieces.
         /// </summary>
-        public readonly ChessPiece[] Pieces = new ChessPiece[]
-        {
-            new Rook(ChessPlayer.White, new ChessPosition('a', 1)),
-            new Knight(ChessPlayer.White, new ChessPosition('b', 1)),
-            new Bishop(ChessPlayer.White, new ChessPosition('c', 1)),
-            new Queen(ChessPlayer.White, new ChessPosition('d', 1)),
-            new King(ChessPlayer.White, new ChessPosition('e', 1)),
-            new Bishop(ChessPlayer.White, new ChessPosition('f', 1)),
-            new Knight(ChessPlayer.White, new ChessPosition('g', 1)),
-            new Rook(ChessPlayer.White, new ChessPosition('h', 1)),
-            new Pawn(ChessPlayer.White, new ChessPosition('a', 2)),
-            new Pawn(ChessPlayer.White, new ChessPosition('b', 2)),
-            new Pawn(ChessPlayer.White, new ChessPosition('c', 2)),
-            new Pawn(ChessPlayer.White, new ChessPosition('d', 2)),
-            new Pawn(ChessPlayer.White, new ChessPosition('e', 2)),
-            new Pawn(ChessPlayer.White, new ChessPosition('f', 2)),
-            new Pawn(ChessPlayer.White, new ChessPosition('g', 2)),
-            new Pawn(ChessPlayer.White, new ChessPosition('h', 2)),
-            new Rook(ChessPlayer.Black, new ChessPosition('a', 8)),
-            new Knight(ChessPlayer.Black, new ChessPosition('b', 8)),
-            new Bishop(ChessPlayer.Black, new ChessPosition('c', 8)),
-            new Queen(ChessPlayer.Black, new ChessPosition('d', 8)),
-            new King(ChessPlayer.Black, new ChessPosition('e', 8)),
-            new Bishop(ChessPlayer.Black, new ChessPosition('f', 8)),
-            new Knight(ChessPlayer.Black, new ChessPosition('g', 8)),
-            new Rook(ChessPlayer.Black, new ChessPosition('h', 8)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('a', 7)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('b', 7)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('c', 7)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('d', 7)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('e', 7)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('f', 7)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('g', 7)),
-            new Pawn(ChessPlayer.Black, new ChessPosition('h', 7))
-        };
+        public readonly ChessPiece[] Pieces;
 
         /// <summary>
         /// The player whose turn it is to move.
         /// </summary>
-        public ChessPlayer Turn { get; private set; } = ChessPlayer.White;
+        public ChessPlayer Turn { get; private set; }
 
         /// <summary>
         /// Toggles player turn.
@@ -66,12 +36,64 @@ namespace Chess
         /// <summary>
         /// Gets whether game is finished.
         /// </summary>
-        public bool Ended { get; private set; } = false;
+        public bool Ended { get; private set; }
 
         /// <summary>
         /// History of moves.
         /// </summary>
-        public readonly LinkedList<string> MovesHistory = new LinkedList<string>();
+        public readonly LinkedList<ChessMove> MovesHistory;
+
+        /// <summary>
+        /// Indicates the last move in <c>MovesHistory</c>.
+        /// </summary>
+        private LinkedListNode<ChessMove> lastMoveNode;
+
+        /// <summary>
+        /// Initializes a new instance of the <c>ChessBoard</c> class.
+        /// </summary>
+        public ChessBoard()
+        {
+            Pieces = new ChessPiece[]
+            {
+                new Rook(ChessPlayer.White, new ChessPosition('a', 1)),
+                new Knight(ChessPlayer.White, new ChessPosition('b', 1)),
+                new Bishop(ChessPlayer.White, new ChessPosition('c', 1)),
+                new Queen(ChessPlayer.White, new ChessPosition('d', 1)),
+                new King(ChessPlayer.White, new ChessPosition('e', 1)),
+                new Bishop(ChessPlayer.White, new ChessPosition('f', 1)),
+                new Knight(ChessPlayer.White, new ChessPosition('g', 1)),
+                new Rook(ChessPlayer.White, new ChessPosition('h', 1)),
+                new Pawn(ChessPlayer.White, new ChessPosition('a', 2)),
+                new Pawn(ChessPlayer.White, new ChessPosition('b', 2)),
+                new Pawn(ChessPlayer.White, new ChessPosition('c', 2)),
+                new Pawn(ChessPlayer.White, new ChessPosition('d', 2)),
+                new Pawn(ChessPlayer.White, new ChessPosition('e', 2)),
+                new Pawn(ChessPlayer.White, new ChessPosition('f', 2)),
+                new Pawn(ChessPlayer.White, new ChessPosition('g', 2)),
+                new Pawn(ChessPlayer.White, new ChessPosition('h', 2)),
+                new Rook(ChessPlayer.Black, new ChessPosition('a', 8)),
+                new Knight(ChessPlayer.Black, new ChessPosition('b', 8)),
+                new Bishop(ChessPlayer.Black, new ChessPosition('c', 8)),
+                new Queen(ChessPlayer.Black, new ChessPosition('d', 8)),
+                new King(ChessPlayer.Black, new ChessPosition('e', 8)),
+                new Bishop(ChessPlayer.Black, new ChessPosition('f', 8)),
+                new Knight(ChessPlayer.Black, new ChessPosition('g', 8)),
+                new Rook(ChessPlayer.Black, new ChessPosition('h', 8)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('a', 7)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('b', 7)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('c', 7)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('d', 7)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('e', 7)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('f', 7)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('g', 7)),
+                new Pawn(ChessPlayer.Black, new ChessPosition('h', 7))
+            };
+            Ended = false;
+            Turn = ChessPlayer.White;
+            MovesHistory = new LinkedList<ChessMove>();
+            MovesHistory.AddFirst(null as ChessMove);
+            lastMoveNode = MovesHistory.First;
+        }
 
         /// <summary>
         /// Gets the piece which occupies a position.
@@ -184,7 +206,8 @@ namespace Chess
         /// </summary>
         /// <param name="player">The player to be checked.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="player"/>'s king is in check. <c>false</c> otherwise.
+        /// <c>true</c> if <paramref name="player"/>'s king is in check.
+        /// <c>false</c> otherwise.
         /// </returns>
         public bool InCheck(ChessPlayer player)
         {
@@ -200,6 +223,19 @@ namespace Chess
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Checks is <paramref name="player"/> has any valid moves.
+        /// </summary>
+        /// <param name="player">The player to be checked.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="player"/> has any valid moves.
+        /// <c>false</c> otherwise.
+        /// </returns>
+        public bool HasValidMoves(ChessPlayer player)
+        {
+            return Pieces.Any(p => !p.IsCaptured && p.Player == player && ValidMoves(p).Count > 0);
         }
 
         /// <summary>
@@ -270,20 +306,16 @@ namespace Chess
             {
                 ChessPosition epPos = null;
                 // Check for En passant
-                LinkedListNode<string> lastMoveNode = MovesHistory.Last;
-                if (lastMoveNode != null)
+                ChessMove lastMove = lastMoveNode.Value;
+                if (lastMove != null)
                 {
-                    string lastMove = lastMoveNode.Value;
-                    if (Regex.IsMatch(lastMove, @"^P.\d+.\d+$"))
+                    if (lastMove.CapturedPiece is null)
                     {
                         // Last move was a normal (no capture) pawn move
-                        MatchCollection numMatches = Regex.Matches(lastMove, @"\d+");
-                        int src = int.Parse(numMatches[0].Value);
-                        int dst = int.Parse(numMatches[1].Value);
-                        if (Math.Abs(src - dst) == 2)
+                        if (Math.Abs(lastMove.Source.Row - lastMove.Destination.Row) == 2)
                         {
                             // Pawn moved 2 rows in last move
-                            epPos = new ChessPosition(lastMove[1], dst);
+                            epPos = new ChessPosition(lastMove.Destination.Column, lastMove.Destination.Row);
                         }
                     }
                 }
@@ -331,14 +363,14 @@ namespace Chess
                 throw new ArgumentException("Piece must be moved to a valid position.");
             }
 
-            StringBuilder moveStr = new StringBuilder();
-            moveStr.Append(piece.ShortString);
+            ChessPosition src = piece.Position.Copy();
             ChessPiece occupier = GetPositionOccupier(new ChessPosition(column, row));
+            string symbols = "";
+
             if (occupier != null)
             {
                 // Capture piece in destination position
                 occupier.IsCaptured = true;
-                moveStr.Append('x').Append(occupier.ShortString);
             }
             else if (piece is Pawn && column != piece.Position.Column)
             {
@@ -346,12 +378,7 @@ namespace Chess
                 // which means En passant is being performed.
                 Pawn captured = GetPositionOccupier(new ChessPosition(column, piece.Position.Row)) as Pawn;
                 captured.IsCaptured = true;
-                moveStr.Append('x').Append(captured.ShortString);
-            }
-            else
-            {
-                // Normal move
-                moveStr.Append(ChessPosition.ColumnToFile(column)).Append(row);
+                occupier = captured;
             }
 
             // Change piece position
@@ -361,15 +388,24 @@ namespace Chess
             ToggleTurn();
             // Check status
             bool inCheck = InCheck(Turn);
-            if (!Pieces.Any(p => !p.IsCaptured && p.Player == Turn && ValidMoves(p).Count > 0))
+            if (!HasValidMoves(Turn))
             {
                 // Either Stalemate or Checkmate
-                if (inCheck) { moveStr.Append('#'); }
+                if (inCheck) { symbols = "#"; }
                 Ended = true;
             }
-            else if (inCheck) { moveStr.Append('+'); }
+            else if (inCheck) { symbols = "+"; }
 
-            MovesHistory.AddLast(moveStr.ToString());
+            if (lastMoveNode != null)
+            {
+                while (lastMoveNode.Next != null)
+                {
+                    // Moving after undo, remove extra moves
+                    MovesHistory.RemoveLast();
+                }
+            }
+            MovesHistory.AddLast(new ChessMove(src, piece, occupier) { Symbols = symbols });
+            lastMoveNode = MovesHistory.Last;
         }
 
         /// <summary>
@@ -401,6 +437,62 @@ namespace Chess
                     nameof(srcFile) + ", " + nameof(srcRank));
             }
             MovePiece(piece, ChessPosition.FileToColumn(dstFile), dstRank);
+        }
+
+        /// <summary>
+        /// Reverses last move.
+        /// </summary>
+        /// <returns>Wether any more undo is available.</returns>
+        /// <exception cref="InvalidOperationException">There is no move to undo.</exception>
+        public bool Undo()
+        {
+            if (lastMoveNode == MovesHistory.First)
+            {
+                throw new InvalidOperationException("There is no move to undo.");
+            }
+            ChessMove lastMove = lastMoveNode.Value;
+
+            ChessPosition src = lastMove.Source;
+
+            lastMove.MovedPiece.Position.Column = src.Column;
+            lastMove.MovedPiece.Position.Row = src.Row;
+
+            if (lastMove.CapturedPiece != null)
+            {
+                lastMove.CapturedPiece.IsCaptured = false;
+            }
+
+            Ended = false;
+            ToggleTurn();
+            lastMoveNode = lastMoveNode.Previous;
+            return lastMoveNode != MovesHistory.First;
+        }
+
+        /// <summary>
+        /// Redo last undone move.
+        /// </summary>
+        /// <returns>Wether any more redo is available.</returns>
+        /// <exception cref="InvalidOperationException">There is no move to redo.</exception>
+        public bool Redo()
+        {
+            if (lastMoveNode.Next is null)
+            {
+                throw new InvalidOperationException("There is no move to redo.");
+            }
+            lastMoveNode = lastMoveNode.Next;
+            ChessMove lastMove = lastMoveNode.Value;
+            ChessPosition dst = lastMove.Destination;
+
+            lastMove.MovedPiece.Position.Column = dst.Column;
+            lastMove.MovedPiece.Position.Row = dst.Row;
+            if (lastMove.CapturedPiece != null)
+            {
+                lastMove.CapturedPiece.IsCaptured = true;
+            }
+
+            ToggleTurn();
+            Ended = !HasValidMoves(Turn);
+            return lastMoveNode.Next != null;
         }
     }
 }
