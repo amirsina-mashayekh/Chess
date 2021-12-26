@@ -17,7 +17,7 @@ namespace Chess
         /// <summary>
         /// Collection of all board pieces.
         /// </summary>
-        public readonly ChessPiece[] Pieces;
+        public readonly List<ChessPiece> Pieces;
 
         /// <summary>
         /// The player whose turn it is to move.
@@ -34,9 +34,9 @@ namespace Chess
         }
 
         /// <summary>
-        /// Gets whether game is finished.
+        /// Gets or sets whether game is finished.
         /// </summary>
-        public bool Ended { get; private set; }
+        public bool Ended { get; set; }
 
         /// <summary>
         /// History of moves.
@@ -46,14 +46,14 @@ namespace Chess
         /// <summary>
         /// Indicates the last move in <c>MovesHistory</c>.
         /// </summary>
-        private LinkedListNode<ChessMove> lastMoveNode;
+        public LinkedListNode<ChessMove> LastMoveNode { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <c>ChessBoard</c> class.
         /// </summary>
         public ChessBoard()
         {
-            Pieces = new ChessPiece[]
+            Pieces = new List<ChessPiece>
             {
                 new Rook(ChessPlayer.White, new ChessPosition('a', 1)),
                 new Knight(ChessPlayer.White, new ChessPosition('b', 1)),
@@ -92,7 +92,7 @@ namespace Chess
             Turn = ChessPlayer.White;
             MovesHistory = new LinkedList<ChessMove>();
             MovesHistory.AddFirst(null as ChessMove);
-            lastMoveNode = MovesHistory.First;
+            LastMoveNode = MovesHistory.First;
         }
 
         /// <summary>
@@ -306,7 +306,7 @@ namespace Chess
             {
                 ChessPosition epPos = null;
                 // Check for En passant
-                ChessMove lastMove = lastMoveNode.Value;
+                ChessMove lastMove = LastMoveNode.Value;
                 if (lastMove != null)
                 {
                     if (lastMove.CapturedPiece is null)
@@ -396,16 +396,16 @@ namespace Chess
             }
             else if (inCheck) { symbols = "+"; }
 
-            if (lastMoveNode != null)
+            if (LastMoveNode != null)
             {
-                while (lastMoveNode.Next != null)
+                while (LastMoveNode.Next != null)
                 {
                     // Moving after undo, remove extra moves
                     MovesHistory.RemoveLast();
                 }
             }
             MovesHistory.AddLast(new ChessMove(src, piece, occupier) { Symbols = symbols });
-            lastMoveNode = MovesHistory.Last;
+            LastMoveNode = MovesHistory.Last;
         }
 
         /// <summary>
@@ -446,16 +446,26 @@ namespace Chess
         /// <exception cref="InvalidOperationException">There is no move to undo.</exception>
         public bool Undo()
         {
-            if (lastMoveNode == MovesHistory.First)
+            if (LastMoveNode == MovesHistory.First)
             {
                 throw new InvalidOperationException("There is no move to undo.");
             }
-            ChessMove lastMove = lastMoveNode.Value;
+            ChessMove lastMove = LastMoveNode.Value;
 
             ChessPosition src = lastMove.Source;
+            ChessPosition dst = lastMove.Destination;
+            ChessPiece moved = lastMove.MovedPiece;
 
-            lastMove.MovedPiece.Position.Column = src.Column;
-            lastMove.MovedPiece.Position.Row = src.Row;
+            if (!string.IsNullOrEmpty(lastMove.Symbols) && lastMove.Symbols[0] == '=')
+            {
+                // Undo pawn promotion
+                ChessPiece promotion = GetPositionOccupier(dst);
+                moved.IsCaptured = false;
+                promotion.IsCaptured = true;
+            }
+
+            moved.Position.Column = src.Column;
+            moved.Position.Row = src.Row;
 
             if (lastMove.CapturedPiece != null)
             {
@@ -464,8 +474,8 @@ namespace Chess
 
             Ended = false;
             ToggleTurn();
-            lastMoveNode = lastMoveNode.Previous;
-            return lastMoveNode != MovesHistory.First;
+            LastMoveNode = LastMoveNode.Previous;
+            return LastMoveNode != MovesHistory.First;
         }
 
         /// <summary>
@@ -475,24 +485,88 @@ namespace Chess
         /// <exception cref="InvalidOperationException">There is no move to redo.</exception>
         public bool Redo()
         {
-            if (lastMoveNode.Next is null)
+            if (LastMoveNode.Next is null)
             {
                 throw new InvalidOperationException("There is no move to redo.");
             }
-            lastMoveNode = lastMoveNode.Next;
-            ChessMove lastMove = lastMoveNode.Value;
+            LastMoveNode = LastMoveNode.Next;
+            ChessMove lastMove = LastMoveNode.Value;
             ChessPosition dst = lastMove.Destination;
+            ChessPiece moved = lastMove.MovedPiece;
 
-            lastMove.MovedPiece.Position.Column = dst.Column;
-            lastMove.MovedPiece.Position.Row = dst.Row;
+            moved.Position.Column = dst.Column;
+            moved.Position.Row = dst.Row;
             if (lastMove.CapturedPiece != null)
             {
                 lastMove.CapturedPiece.IsCaptured = true;
             }
 
+            if (!string.IsNullOrEmpty(lastMove.Symbols) && lastMove.Symbols[0] == '=')
+            {
+                // Redo pawn promotion
+                char letter = lastMove.Symbols[1];
+                ChessPiece promotion = Pieces
+                    .Single(p => p.Player == moved.Player && p.Letter == letter && p.Position == dst);
+
+                if (promotion is King || promotion is Pawn)
+                {
+                    throw new InvalidOperationException("Invalid pawn promotion");
+                }
+
+                promotion.IsCaptured = false;
+                moved.IsCaptured = true;
+            }
+
             ToggleTurn();
             Ended = !HasValidMoves(Turn);
-            return lastMoveNode.Next != null;
+            return LastMoveNode.Next != null;
+        }
+
+        /// <summary>
+        /// Promote pawn to another piece.
+        /// </summary>
+        /// <param name="pawn">The pawn to be promoted.</param>
+        /// <param name="promotion">The piece to replace <paramref name="pawn"/>.</param>
+        /// <exception cref="ArgumentException">
+        /// The <paramref name="promotion"/> is king or pawn.
+        /// The <paramref name="pawn"/> is not at end of board.
+        /// </exception>
+        public void PromotePawn(Pawn pawn, ChessPiece promotion)
+        {
+            if (promotion is King || promotion is Pawn)
+            {
+                throw new ArgumentException("Cannot promote pawn to king or pawn.", nameof(promotion));
+            }
+
+            if (promotion.Player != pawn.Player)
+            {
+                throw new ArgumentException("Promotion piece has wrong player.", nameof(promotion));
+            }
+
+            if ((pawn.Player == ChessPlayer.White && pawn.Position.Row != ChessPosition.MaxRow)
+                || (pawn.Player == ChessPlayer.Black && pawn.Position.Row != ChessPosition.MinRow))
+            {
+                throw new ArgumentException("Cannot promote pawn which is not at end of board.", nameof(pawn));
+            }
+
+            promotion.Position.Column = pawn.Position.Column;
+            promotion.Position.Row = pawn.Position.Row;
+
+            Pieces.Add(promotion);
+            pawn.IsCaptured = true;
+
+            string symbols = "=" + promotion.Letter;
+            ChessPlayer opp = pawn.Player == ChessPlayer.White ? ChessPlayer.Black : ChessPlayer.White;
+            bool inCheck = InCheck(opp);
+            if (!HasValidMoves(opp))
+            {
+                // Either Stalemate or Checkmate
+                if (inCheck) { symbols += "#"; }
+                Ended = true;
+            }
+            else if (inCheck) { symbols += "+"; }
+
+            LastMoveNode.Value.Symbols = symbols + LastMoveNode.Value.Symbols;
         }
     }
 }

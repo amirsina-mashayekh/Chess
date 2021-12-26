@@ -13,10 +13,6 @@ namespace Chess.ChessPieces
     {
         public override int ValuePoints => 5;
 
-        public override string FullName => "Rook";
-
-        public override char Letter => 'R';
-
         public Rook(ChessPlayer player, ChessPosition position) : base(player, position) { }
 
         public override List<ChessPosition> GetMoves()

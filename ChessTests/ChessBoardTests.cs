@@ -428,5 +428,61 @@ namespace Chess.Tests
             Assert.IsTrue(bQueen.IsCaptured);
             Assert.AreEqual(bQueen, board.MovesHistory.Last.Value.CapturedPiece);
         }
+
+        [TestMethod()]
+        public void PawnPromotionTest()
+        {
+            ChessBoard board = new ChessBoard();
+            Pawn waPawn = board.GetPositionOccupier('a', 2) as Pawn;
+            King bKing = board.GetPositionOccupier('e', 8) as King;
+
+            foreach (ChessPiece piece in board.Pieces)
+            {
+                if (!(piece is King))
+                {
+                    piece.IsCaptured = true;
+                }
+            }
+            waPawn.IsCaptured = false;
+            PrintBoard(board);
+
+            board.MovePiece(waPawn, 'a', 4);
+            board.MovePiece(bKing, 'f', 8);
+            board.MovePiece(waPawn, 'a', 5);
+            board.MovePiece(bKing, 'g', 8);
+            board.MovePiece(waPawn, 'a', 6);
+            board.MovePiece(bKing, 'h', 8);
+            board.MovePiece(waPawn, 'a', 7);
+            board.MovePiece(bKing, 'g', 8);
+
+            Queen wQueen2 = new Queen(ChessPlayer.White, new ChessPosition(1, 1));
+            Queen bQueen2 = new Queen(ChessPlayer.Black, new ChessPosition(1, 1));
+            King testwKing = new King(ChessPlayer.White, new ChessPosition(1, 1));
+            Assert.ThrowsException<ArgumentException>(() => board.PromotePawn(waPawn, wQueen2));
+            
+            board.MovePiece(waPawn, 'a', 8);
+            PrintBoard(board);
+            Assert.ThrowsException<ArgumentException>(() => board.PromotePawn(waPawn, testwKing));
+            Assert.ThrowsException<ArgumentException>(() => board.PromotePawn(waPawn, bQueen2));
+            board.PromotePawn(waPawn, wQueen2);
+            PrintBoard(board);
+            Assert.AreEqual(wQueen2, board.GetPositionOccupier('a', 8));
+            Assert.IsTrue(board.LastMoveNode.Value.Symbols == "=" + wQueen2.Letter + "+");
+
+            board.MovePiece(bKing, 'h', 7);
+            PrintBoard(board);
+            board.Undo();
+            board.Undo();
+            PrintBoard(board);
+            Assert.AreEqual(waPawn, board.GetPositionOccupier('a', 7));
+            Assert.IsTrue(wQueen2.IsCaptured);
+
+            board.Redo();
+            PrintBoard(board);
+            Assert.AreEqual(wQueen2, board.GetPositionOccupier('a', 8));
+            Assert.IsTrue(board.LastMoveNode.Value.Symbols == "=" + wQueen2.Letter + "+");
+            board.Redo();
+            PrintBoard(board);
+        }
     }
 }

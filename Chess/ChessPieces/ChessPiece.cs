@@ -21,6 +21,16 @@ namespace Chess.ChessPieces
     /// </summary>
     public abstract class ChessPiece
     {
+        public static Dictionary<Type, char> ChessPieceLetters = new Dictionary<Type, char>()
+        {
+            {typeof(King), 'K'},
+            {typeof(Queen), 'Q'},
+            {typeof(Rook), 'R'},
+            {typeof(Bishop), 'B'},
+            {typeof(Knight), 'N'},
+            {typeof(Pawn), 'P'},
+        };
+
         /// <summary>
         /// Gets the player which the piece belongs to.
         /// </summary>
@@ -44,12 +54,12 @@ namespace Chess.ChessPieces
         /// <summary>
         /// Gets the full name of piece.
         /// </summary>
-        public abstract string FullName { get; }
+        public string FullName => GetType().Name;
 
         /// <summary>
         /// Gets letter representation of piece.
         /// </summary>
-        public abstract char Letter { get; }
+        public char Letter => ChessPieceLetters[GetType()];
 
         /// <summary>
         /// Initializes a new instance of the <c>ChessPiece</c> class

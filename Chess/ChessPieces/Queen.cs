@@ -13,10 +13,6 @@ namespace Chess.ChessPieces
     {
         public override int ValuePoints => 9;
 
-        public override string FullName => "Queen";
-
-        public override char Letter => 'Q';
-
         public Queen(ChessPlayer player, ChessPosition position) : base(player, position) { }
 
         public override List<ChessPosition> GetMoves()

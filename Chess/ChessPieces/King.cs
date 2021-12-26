@@ -19,10 +19,6 @@ namespace Chess.ChessPieces
         /// </summary>
         public override bool IsCaptured => false;
 
-        public override string FullName => "King";
-
-        public override char Letter => 'K';
-
         /// <summary>
         /// Initializes a new instance of the <c>King</c> class.
         /// </summary>
