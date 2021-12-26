@@ -1,13 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Chess;
+﻿using Chess.ChessUtil;
+using Chess.ChessUtil.ChessPieces;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Chess.ChessPieces;
 
-namespace Chess.Tests
+namespace Chess.ChessUtil.Tests
 {
     [TestClass()]
     public class ChessBoardTests
@@ -459,7 +455,7 @@ namespace Chess.Tests
             Queen bQueen2 = new Queen(ChessPlayer.Black, new ChessPosition(1, 1));
             King testwKing = new King(ChessPlayer.White, new ChessPosition(1, 1));
             Assert.ThrowsException<ArgumentException>(() => board.PromotePawn(waPawn, wQueen2));
-            
+
             board.MovePiece(waPawn, 'a', 8);
             PrintBoard(board);
             Assert.ThrowsException<ArgumentException>(() => board.PromotePawn(waPawn, testwKing));

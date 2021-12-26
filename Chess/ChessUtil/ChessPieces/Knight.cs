@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Chess.ChessPieces
+namespace Chess.ChessUtil.ChessPieces
 {
     /// <summary>
     /// Represents a knight chess piece.
@@ -13,7 +9,9 @@ namespace Chess.ChessPieces
     {
         public override int ValuePoints => 3;
 
-        public Knight(ChessPlayer player, ChessPosition position) : base(player, position) { }
+        public Knight(ChessPlayer player, ChessPosition position) : base(player, position)
+        {
+        }
 
         private static readonly int[] rowMoves = new int[] { 1, 2, 2, 1, -1, -2, -2, -1 };
 

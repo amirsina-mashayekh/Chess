@@ -62,16 +62,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ChessBoard.cs" />
-    <Compile Include="ChessMove.cs" />
-    <Compile Include="ChessPieces\Bishop.cs" />
-    <Compile Include="ChessPieces\ChessPiece.cs" />
-    <Compile Include="ChessPieces\ChessPosition.cs" />
-    <Compile Include="ChessPieces\King.cs" />
-    <Compile Include="ChessPieces\Knight.cs" />
-    <Compile Include="ChessPieces\Pawn.cs" />
-    <Compile Include="ChessPieces\Queen.cs" />
-    <Compile Include="ChessPieces\Rook.cs" />
+    <Compile Include="ChessUtil\ChessBoard.cs" />
+    <Compile Include="ChessUtil\ChessMove.cs" />
+    <Compile Include="ChessUtil\ChessPieces\Bishop.cs" />
+    <Compile Include="ChessUtil\ChessPieces\ChessPiece.cs" />
+    <Compile Include="ChessUtil\ChessPosition.cs" />
+    <Compile Include="ChessUtil\ChessPieces\King.cs" />
+    <Compile Include="ChessUtil\ChessPieces\Knight.cs" />
+    <Compile Include="ChessUtil\ChessPieces\Pawn.cs" />
+    <Compile Include="ChessUtil\ChessPieces\Queen.cs" />
+    <Compile Include="ChessUtil\ChessPieces\Rook.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -103,5 +103,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

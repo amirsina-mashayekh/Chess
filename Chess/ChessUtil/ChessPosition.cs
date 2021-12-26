@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Chess.ChessPieces
+namespace Chess.ChessUtil
 {
     /// <summary>
     /// Represents the position of piece in chess board.
@@ -38,7 +35,7 @@ namespace Chess.ChessPieces
         /// </summary>
         public int Column
         {
-            get { return _column; }
+            get => _column;
             set
             {
                 if (!ColumnIsValid(value))
@@ -56,11 +53,8 @@ namespace Chess.ChessPieces
         /// </summary>
         public char File
         {
-            get { return ColumnToFile(_column); }
-            set
-            {
-                Column = FileToColumn(value);
-            }
+            get => ColumnToFile(_column);
+            set => Column = FileToColumn(value);
         }
 
         /// <summary>
@@ -90,7 +84,7 @@ namespace Chess.ChessPieces
         /// </summary>
         public int Row
         {
-            get { return _row; }
+            get => _row;
             set
             {
                 if (!RowIsValid(value))
@@ -108,8 +102,8 @@ namespace Chess.ChessPieces
         /// </summary>
         public int Rank
         {
-            get { return _row; }
-            set { Row = value; }
+            get => _row;
+            set => Row = value;
         }
 
         /// <summary>

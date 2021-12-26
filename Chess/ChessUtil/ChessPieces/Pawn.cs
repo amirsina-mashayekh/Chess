@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Chess.ChessPieces
+namespace Chess.ChessUtil.ChessPieces
 {
     /// <summary>
     /// Represents a pawn chess piece.
@@ -13,7 +9,9 @@ namespace Chess.ChessPieces
     {
         public override int ValuePoints => 1;
 
-        public Pawn(ChessPlayer player, ChessPosition position) : base(player, position) { }
+        public Pawn(ChessPlayer player, ChessPosition position) : base(player, position)
+        {
+        }
 
         public override List<ChessPosition> GetMoves()
         {

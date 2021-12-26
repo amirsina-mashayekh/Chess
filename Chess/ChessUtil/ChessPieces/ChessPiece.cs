@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
-namespace Chess.ChessPieces
+namespace Chess.ChessUtil.ChessPieces
 {
     /// <summary>
     /// Specifies the player which the piece belongs to.
@@ -35,7 +31,7 @@ namespace Chess.ChessPieces
         /// Gets the player which the piece belongs to.
         /// </summary>
         public ChessPlayer Player { get; }
-        
+
         /// <summary>
         /// Gets the position of piece.
         /// </summary>

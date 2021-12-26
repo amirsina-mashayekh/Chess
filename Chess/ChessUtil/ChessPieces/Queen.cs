@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Chess.ChessPieces
+namespace Chess.ChessUtil.ChessPieces
 {
     /// <summary>
-    /// Represents a rook chess piece.
+    /// Represents a queen chess piece.
     /// </summary>
-    public class Rook : ChessPiece
+    public class Queen : ChessPiece
     {
-        public override int ValuePoints => 5;
+        public override int ValuePoints => 9;
 
-        public Rook(ChessPlayer player, ChessPosition position) : base(player, position) { }
+        public Queen(ChessPlayer player, ChessPosition position) : base(player, position)
+        {
+        }
 
         public override List<ChessPosition> GetMoves()
         {
@@ -31,6 +30,15 @@ namespace Chess.ChessPieces
             {
                 if (i == row) { continue; }
                 moves.Add(new ChessPosition(col, i));
+                int rowDiff = Math.Abs(i - row);
+                if (col - rowDiff >= ChessPosition.MinColumn)
+                {
+                    moves.Add(new ChessPosition(col - rowDiff, i));
+                }
+                if (col + rowDiff <= ChessPosition.MaxColumn)
+                {
+                    moves.Add(new ChessPosition(col + rowDiff, i));
+                }
             }
 
             return moves;

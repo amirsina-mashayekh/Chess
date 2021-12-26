@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Chess.ChessUtil.ChessPieces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Chess.ChessPieces;
 
-namespace Chess
+namespace Chess.ChessUtil
 {
     /// <summary>
     /// Represents a chess board.
@@ -323,7 +320,7 @@ namespace Chess
                 moves
                     .Where(p => p.Column != c && GetPositionOccupier(p) is null)
                     .ToList()
-                    .ForEach(m => 
+                    .ForEach(m =>
                     {
                         if (!(epPos != null && epPos.Row == r && epPos.Column == m.Column))
                         {

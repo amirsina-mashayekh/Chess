@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Chess.ChessUtil.ChessPieces;
 using System.Text;
-using System.Threading.Tasks;
-using Chess.ChessPieces;
 
-namespace Chess
+namespace Chess.ChessUtil
 {
     /// <summary>
     /// Represents a move in chess board.
