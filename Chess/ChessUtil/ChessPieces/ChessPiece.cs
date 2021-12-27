@@ -58,6 +58,16 @@ namespace Chess.ChessUtil.ChessPieces
         public char Letter => ChessPieceLetters[GetType()];
 
         /// <summary>
+        /// Gets symbol character of white colored piece.
+        /// </summary>
+        protected abstract char WhiteSymbol { get; }
+
+        /// <summary>
+        /// Gets symbol character of piece.
+        /// </summary>
+        public char Symbol => Player == ChessPlayer.White ? WhiteSymbol : (char)(WhiteSymbol + 6);
+
+        /// <summary>
         /// Initializes a new instance of the <c>ChessPiece</c> class
         /// for <paramref name="player"/> in <paramref name="position"/>.
         /// </summary>

@@ -11,6 +11,8 @@ namespace Chess.ChessUtil.ChessPieces
         public override int ValuePoints =>
             throw new NotSupportedException("King has no value as it cannot be captured.");
 
+        protected override char WhiteSymbol => '\u2654';
+
         /// <summary>
         /// Always returns false as king cannot be captured.
         /// </summary>

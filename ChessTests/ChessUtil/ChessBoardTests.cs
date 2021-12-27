@@ -206,7 +206,7 @@ namespace Chess.ChessUtil.Tests
         }
 
         [TestMethod()]
-        public void CheckMateTest()
+        public void CheckmateTest()
         {
             ChessBoard board = new ChessBoard();
             foreach (ChessPiece piece in board.Pieces)
@@ -249,7 +249,7 @@ namespace Chess.ChessUtil.Tests
         }
 
         [TestMethod()]
-        public void StaleMateTest()
+        public void StalemateTest()
         {
             ChessBoard board = new ChessBoard();
             foreach (ChessPiece piece in board.Pieces)

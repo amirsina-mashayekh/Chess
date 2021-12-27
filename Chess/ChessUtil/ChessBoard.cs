@@ -378,6 +378,23 @@ namespace Chess.ChessUtil
                 occupier = captured;
             }
 
+            // Check for castling
+            if (piece is King && Math.Abs(src.Column - column) == 2)
+            {
+                if (src.Column < column)
+                {
+                    // Kingside
+                    GetPositionOccupier(new ChessPosition(column + 1, row))
+                        .Position.Column = column - 1;
+                }
+                else
+                {
+                    // Queenside
+                    GetPositionOccupier(new ChessPosition(column - 2, row))
+                        .Position.Column = column + 1;
+                }
+            }
+
             // Change piece position
             piece.Position.Column = column;
             piece.Position.Row = row;
