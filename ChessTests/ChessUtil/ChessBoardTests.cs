@@ -154,22 +154,71 @@ namespace Chess.ChessUtil.Tests
         {
             // Pawn validation test
             ChessBoard board = new ChessBoard();
-            Pawn wdPanw = board.GetPositionOccupier('e', 2) as Pawn;
-            Assert.AreEqual(2, board.ValidMoves(wdPanw).Count);
+            Pawn wePanw = board.GetPositionOccupier('e', 2) as Pawn;
+            Pawn wdPanw = board.GetPositionOccupier('d', 2) as Pawn;
+            Assert.AreEqual(2, board.ValidMoves(wePanw).Count);
 
             Queen bQueen = board.GetPositionOccupier('d', 8) as Queen;
             bQueen.Position.Rank = 3;
             PrintBoard(board);
-            Assert.AreEqual(3, board.ValidMoves(wdPanw).Count);
+            Assert.AreEqual(3, board.ValidMoves(wePanw).Count);
+            Assert.AreEqual(0, board.ValidMoves(wdPanw).Count);
 
             bQueen.Position.Rank = 4;
-            wdPanw.Position.Rank = 3;
+            wePanw.Position.Rank = 3;
             PrintBoard(board);
-            Assert.AreEqual(2, board.ValidMoves(wdPanw).Count);
+            Assert.AreEqual(2, board.ValidMoves(wePanw).Count);
 
             bQueen.Position.File = 'e';
             PrintBoard(board);
-            Assert.AreEqual(0, board.ValidMoves(wdPanw).Count);
+            Assert.AreEqual(0, board.ValidMoves(wePanw).Count);
+        }
+
+        [TestMethod()]
+        public void CastlingTest()
+        {
+            ChessBoard board = new ChessBoard();
+            foreach (ChessPiece piece in board.Pieces)
+            {
+                if (!(piece is King) && !(piece is Rook))
+                {
+                    piece.IsCaptured = true;
+                }
+            }
+            PrintBoard(board);
+
+            King wKing = board.GetPositionOccupier('e', 1) as King;
+            King bKing = board.GetPositionOccupier('e', 8) as King;
+            Rook wqRook = board.GetPositionOccupier('a', 1) as Rook;
+            Rook wkRook = board.GetPositionOccupier('h', 1) as Rook;
+            Rook bqRook = board.GetPositionOccupier('a', 8) as Rook;
+            Rook bkRook = board.GetPositionOccupier('h', 8) as Rook;
+
+            board.MovePiece(wKing, 'g', 1);
+            PrintBoard(board);
+            Assert.AreEqual(new ChessPosition('f', 1), wkRook.Position);
+
+            Assert.ThrowsException<ArgumentException>(() => board.MovePiece(bKing, 'g', 8));
+            board.MovePiece(bKing, 'c', 8);
+            PrintBoard(board);
+            Assert.AreEqual(new ChessPosition('d', 8), bqRook.Position);
+
+            board.Undo();
+            board.Redo();
+            board.Undo();
+            board.Undo();
+            PrintBoard(board);
+            Assert.AreEqual(new ChessPosition('h', 1), wkRook.Position);
+            Assert.AreEqual(new ChessPosition('a', 8), bqRook.Position);
+
+            board.MovePiece(wKing, 'c', 1);
+            PrintBoard(board);
+            Assert.AreEqual(new ChessPosition('d', 1), wqRook.Position);
+
+            Assert.ThrowsException<ArgumentException>(() => board.MovePiece(bKing, 'c', 8));
+            board.MovePiece(bKing, 'g', 8);
+            PrintBoard(board);
+            Assert.AreEqual(new ChessPosition('f', 8), bkRook.Position);
         }
 
         [TestMethod()]

@@ -176,6 +176,12 @@ namespace Chess.ChessUtil
                     // Pawn cannot attack vertically
                     moves.Remove(move);
                 }
+                if (piece is Pawn && !piece.Position.IsMoved)
+                {
+                    moves
+                        .Where(m => m.Column == occ && IsAfterEnd(pcr, ocr, m.Row)).ToList()
+                        .ForEach(m => moves.Remove(m));
+                }
             }
 
             return moves;
@@ -384,13 +390,13 @@ namespace Chess.ChessUtil
                 if (src.Column < column)
                 {
                     // Kingside
-                    GetPositionOccupier(new ChessPosition(column + 1, row))
+                    GetPositionOccupier(new ChessPosition(ChessPosition.MaxColumn, row))
                         .Position.Column = column - 1;
                 }
                 else
                 {
                     // Queenside
-                    GetPositionOccupier(new ChessPosition(column - 2, row))
+                    GetPositionOccupier(new ChessPosition(ChessPosition.MinColumn, row))
                         .Position.Column = column + 1;
                 }
             }
@@ -478,8 +484,18 @@ namespace Chess.ChessUtil
                 promotion.IsCaptured = true;
             }
 
+            if (moved is King && Math.Abs(dst.Column - src.Column) == 2)
+            {
+                // Undo castling
+                int dir = src.Column < dst.Column ? 1 : -1;     // 1: Kingside, -1: Queenside
+                Rook r = GetPositionOccupier(new ChessPosition(src.Column + dir, dst.Row)) as Rook;
+                r.Position.Column = dir == 1 ? ChessPosition.MaxColumn : ChessPosition.MinColumn;
+                r.Position.IsMoved = false;
+            }
+
             moved.Position.Column = src.Column;
             moved.Position.Row = src.Row;
+            moved.Position.IsMoved = src.IsMoved;
 
             if (lastMove.CapturedPiece != null)
             {
@@ -505,6 +521,7 @@ namespace Chess.ChessUtil
             }
             LastMoveNode = LastMoveNode.Next;
             ChessMove lastMove = LastMoveNode.Value;
+            ChessPosition src = lastMove.Source;
             ChessPosition dst = lastMove.Destination;
             ChessPiece moved = lastMove.MovedPiece;
 
@@ -522,13 +539,25 @@ namespace Chess.ChessUtil
                 ChessPiece promotion = Pieces
                     .Single(p => p.Player == moved.Player && p.Letter == letter && p.Position == dst);
 
-                if (promotion is King || promotion is Pawn)
-                {
-                    throw new InvalidOperationException("Invalid pawn promotion");
-                }
-
                 promotion.IsCaptured = false;
                 moved.IsCaptured = true;
+            }
+
+            if (moved is King && Math.Abs(dst.Column - src.Column) == 2)
+            {
+                // Redo castling
+                if (src.Column < dst.Column)
+                {
+                    // Kingside
+                    GetPositionOccupier(new ChessPosition(ChessPosition.MaxColumn, dst.Row))
+                        .Position.Column = dst.Column - 1;
+                }
+                else
+                {
+                    // Queenside
+                    GetPositionOccupier(new ChessPosition(ChessPosition.MinColumn, dst.Row))
+                        .Position.Column = dst.Column + 1;
+                }
             }
 
             ToggleTurn();
