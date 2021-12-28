@@ -411,7 +411,7 @@ namespace Chess.ChessUtil.Tests
             PrintBoard(board);
             Assert.IsNull(board.MovesHistory.Find(mateMove));
 
-            while (board.Undo()) { PrintBoard(board); }
+            while (board.Undo()) PrintBoard(board);
             PrintBoard(board);
             Assert.AreEqual(ChessPlayer.White, board.Turn);
             Assert.AreEqual(new ChessPosition('e', 1), wKing.Position);
@@ -456,10 +456,10 @@ namespace Chess.ChessUtil.Tests
             board.MovePiece(bQueen, 'h', 2);
             PrintBoard(board);
 
-            while (board.Undo()) { PrintBoard(board); }
+            while (board.Undo()) PrintBoard(board);
             PrintBoard(board);
 
-            while (board.Redo()) { PrintBoard(board); }
+            while (board.Redo()) PrintBoard(board);
             PrintBoard(board);
             Assert.IsTrue(board.Ended);
             Assert.IsTrue(board.MovesHistory.Last.Value.Symbols.EndsWith("#"));

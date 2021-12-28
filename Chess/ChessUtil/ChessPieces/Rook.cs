@@ -23,13 +23,13 @@ namespace Chess.ChessUtil.ChessPieces
 
             for (int i = ChessPosition.MinColumn; i <= ChessPosition.MaxColumn; i++)
             {
-                if (i == col) { continue; }
+                if (i == col) continue;
                 moves.Add(new ChessPosition(i, row));
             }
 
             for (int i = ChessPosition.MinRow; i <= ChessPosition.MaxRow; i++)
             {
-                if (i == row) { continue; }
+                if (i == row) continue;
                 moves.Add(new ChessPosition(col, i));
             }
 

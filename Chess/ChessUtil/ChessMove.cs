@@ -1,4 +1,5 @@
 ﻿using Chess.ChessUtil.ChessPieces;
+using System;
 using System.Text;
 
 namespace Chess.ChessUtil
@@ -75,6 +76,40 @@ namespace Chess.ChessUtil
             str.Append(Symbols);
 
             return str.ToString();
+        }
+
+        public string ToSAN()
+        {
+            if (MovedPiece is King && Math.Abs(Source.Column - Destination.Column) == 2)
+            {
+                return Symbols;
+            }
+
+            StringBuilder str = new StringBuilder();
+
+            if (!(MovedPiece is Pawn)) str.Append(MovedPiece.Letter);
+            str.Append(Source);
+
+            if (CapturedPiece != null)
+            {
+                str.Append('x');
+                if (!(CapturedPiece is Pawn)) str.Append(CapturedPiece.Letter);
+            }
+            str.Append(Destination);
+
+            str.Append(Symbols);
+
+            return str.ToString();
+        }
+
+        public string ToFAN()
+        {
+            string str = ToSAN().Replace(MovedPiece.Letter, MovedPiece.Symbol);
+            if (CapturedPiece != null)
+            {
+                return str.Replace(CapturedPiece.Letter, CapturedPiece.Symbol);
+            }
+            return str;
         }
     }
 }

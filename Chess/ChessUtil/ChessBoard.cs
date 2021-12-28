@@ -26,8 +26,8 @@ namespace Chess.ChessUtil
         /// </summary>
         public void ToggleTurn()
         {
-            if (Turn == ChessPlayer.White) { Turn = ChessPlayer.Black; }
-            else { Turn = ChessPlayer.White; }
+            if (Turn == ChessPlayer.White) Turn = ChessPlayer.Black;
+            else Turn = ChessPlayer.White;
         }
 
         /// <summary>
@@ -134,12 +134,12 @@ namespace Chess.ChessUtil
 
             foreach (ChessPosition move in moves.ToList())
             {
-                if (!moves.Contains(move)) { continue; }
+                if (!moves.Contains(move)) continue;
                 ChessPiece occupier = GetPositionOccupier(move);
 
-                if (occupier is null) { continue; }
+                if (occupier is null) continue;
 
-                if (occupier.Player == piece.Player) { moves.Remove(move); }
+                if (occupier.Player == piece.Player) moves.Remove(move);
 
                 int ocr = move.Row;
                 int occ = move.Column;
@@ -199,9 +199,9 @@ namespace Chess.ChessUtil
         /// </returns>
         private bool IsAfterEnd(int start, int end, int check)
         {
-            if (start < end) { return check > end; }
-            else if (start > end) { return check < end; }
-            else { return false; }
+            if (start < end) return check > end;
+            else if (start > end) return check < end;
+            else return false;
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Chess.ChessUtil
                 List<ChessPosition> moves = AvailableMoves(piece);
                 foreach (ChessPosition move in moves)
                 {
-                    if (move == king.Position) { return true; }
+                    if (move == king.Position) return true;
                 }
             }
             return false;
@@ -260,7 +260,7 @@ namespace Chess.ChessUtil
             {
                 ChessPosition move = moves[i];
                 ChessPiece occ = GetPositionOccupier(move);
-                if (occ != null) { occ.IsCaptured = true; }
+                if (occ != null) occ.IsCaptured = true;
 
                 piece.Position.Row = move.Row;
                 piece.Position.Column = move.Column;
@@ -269,7 +269,7 @@ namespace Chess.ChessUtil
                     moves.RemoveAt(i);
                     i--;
                 }
-                if (occ != null) { occ.IsCaptured = false; }
+                if (occ != null) occ.IsCaptured = false;
             }
 
             // Reset piece position
@@ -287,7 +287,7 @@ namespace Chess.ChessUtil
 
                 foreach (ChessPiece rook in rooks)
                 {
-                    if (rook.Position.IsMoved) { continue; }
+                    if (rook.Position.IsMoved) continue;
                     int dir = rook.Position.Column > c ? 1 : -1;
                     if (moves.Exists(p => p.Column == c + dir && p.Row == r))
                     {
@@ -392,12 +392,14 @@ namespace Chess.ChessUtil
                     // Kingside
                     GetPositionOccupier(new ChessPosition(ChessPosition.MaxColumn, row))
                         .Position.Column = column - 1;
+                    symbols = "0-0";
                 }
                 else
                 {
                     // Queenside
                     GetPositionOccupier(new ChessPosition(ChessPosition.MinColumn, row))
                         .Position.Column = column + 1;
+                    symbols = "0-0-0";
                 }
             }
 
@@ -411,10 +413,10 @@ namespace Chess.ChessUtil
             if (!HasValidMoves(Turn))
             {
                 // Either Stalemate or Checkmate
-                if (inCheck) { symbols = "#"; }
+                if (inCheck) symbols += "#";
                 Ended = true;
             }
-            else if (inCheck) { symbols = "+"; }
+            else if (inCheck) symbols += "+";
 
             if (LastMoveNode != null)
             {
@@ -604,10 +606,10 @@ namespace Chess.ChessUtil
             if (!HasValidMoves(opp))
             {
                 // Either Stalemate or Checkmate
-                if (inCheck) { symbols += "#"; }
+                if (inCheck) symbols += "#";
                 Ended = true;
             }
-            else if (inCheck) { symbols += "+"; }
+            else if (inCheck) symbols += "+";
 
             LastMoveNode.Value.Symbols = symbols + LastMoveNode.Value.Symbols;
         }
