@@ -22,7 +22,9 @@ namespace Chess
 
         private static readonly Brush activeSquareBrush = new SolidColorBrush(Color.FromArgb(128, 0, 127, 255));
 
-        private static readonly Brush highlightSquareBrush = new SolidColorBrush(Color.FromArgb(64, 255, 255, 0));
+        private static readonly Brush availableSquareBrush = new SolidColorBrush(Color.FromArgb(64, 255, 255, 0));
+
+        private static readonly Brush inCheckSquareBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
 
         private readonly ChessBoard board = new ChessBoard();
 
@@ -56,7 +58,7 @@ namespace Chess
             {
                 if (!(BoardCanvas.Children[i] is Rectangle rect)) { continue; }
 
-                if (rect.Fill == activeSquareBrush || rect.Fill == highlightSquareBrush)
+                if (rect.Fill == activeSquareBrush || rect.Fill == availableSquareBrush)
                 {
                     BoardCanvas.Children.Remove(rect);
                     i--;
@@ -66,6 +68,7 @@ namespace Chess
 
         public void UpdateBoard()
         {
+            // Perform moves
             foreach (ChessPiece piece in board.Pieces)
             {
                 Viewbox pieceBox = pieces[piece];
@@ -84,11 +87,43 @@ namespace Chess
 
                 MoveToPosition(pieceBox, piece.Position);
             }
-        }
 
-        private void BoardCanvas_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            ClearHighlights();
+            // Clear previous in check squares
+            for (int i = 0; i < BoardCanvas.Children.Count; i++)
+            {
+                if (!(BoardCanvas.Children[i] is Rectangle rect)) { continue; }
+
+                if (rect.Fill == inCheckSquareBrush)
+                {
+                    BoardCanvas.Children.Remove(rect);
+                    i--;
+                }
+            }
+
+            // Warn in check king
+            King inCheck = null;
+            if (board.InCheck(ChessPlayer.White))
+            {
+                inCheck = board.Pieces
+                    .Single(p => p is King && p.Player == ChessPlayer.White) as King;
+            }
+            else if (board.InCheck(ChessPlayer.Black))
+            {
+                inCheck = board.Pieces
+                    .Single(p => p is King && p.Player == ChessPlayer.Black) as King;
+            }
+
+            if (inCheck != null)
+            {
+                Rectangle inCheckSQ = new Rectangle()
+                {
+                    Width = squareSize,
+                    Height = squareSize,
+                    Fill = inCheckSquareBrush
+                };
+                BoardCanvas.Children.Add(inCheckSQ);
+                MoveToPosition(inCheckSQ, inCheck.Position);
+            }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -142,6 +177,16 @@ namespace Chess
             UpdateBoard();
         }
 
+        private void BoardCanvas_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (board.Ended)
+            {
+                e.Handled = true;
+                return;
+            }
+            ClearHighlights();
+        }
+
         private void Piece_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             ChessPiece piece = pieces.Single(p => p.Value == sender).Key;
@@ -164,7 +209,7 @@ namespace Chess
                 {
                     Width = squareSize,
                     Height = squareSize,
-                    Fill = highlightSquareBrush
+                    Fill = availableSquareBrush
                 };
                 BoardCanvas.Children.Add(avail);
                 Panel.SetZIndex(avail, 3);
