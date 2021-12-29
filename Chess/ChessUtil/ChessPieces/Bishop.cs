@@ -8,10 +8,6 @@ namespace Chess.ChessUtil.ChessPieces
     /// </summary>
     public class Bishop : ChessPiece
     {
-        public override int ValuePoints => 3;
-
-        protected override char WhiteSymbol => '\u2657';
-
         public Bishop(ChessPlayer player, ChessPosition position) : base(player, position)
         {
         }

@@ -7,10 +7,6 @@ namespace Chess.ChessUtil.ChessPieces
     /// </summary>
     public class Pawn : ChessPiece
     {
-        public override int ValuePoints => 1;
-
-        protected override char WhiteSymbol => '\u2659';
-
         public Pawn(ChessPlayer player, ChessPosition position) : base(player, position)
         {
         }

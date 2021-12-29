@@ -1,5 +1,6 @@
 ﻿using Chess.ChessUtil.ChessPieces;
 using System;
+using System.Linq;
 using System.Text;
 
 namespace Chess.ChessUtil
@@ -104,12 +105,12 @@ namespace Chess.ChessUtil
 
         public string ToFAN()
         {
-            string str = ToSAN().Replace(MovedPiece.Letter, MovedPiece.Symbol);
-            if (CapturedPiece != null)
+            StringBuilder str = new StringBuilder(ToSAN());
+            foreach (string info in ChessPiece.ChessPiecesInfo.Values)
             {
-                return str.Replace(CapturedPiece.Letter, CapturedPiece.Symbol);
+                str.Replace(info[(int)ChessPieceInfo.Letter], info[(int)ChessPieceInfo.Symbol]);
             }
-            return str;
+            return str.ToString();
         }
     }
 }

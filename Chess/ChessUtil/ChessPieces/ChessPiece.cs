@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Chess.ChessUtil.ChessPieces
 {
@@ -8,8 +9,12 @@ namespace Chess.ChessUtil.ChessPieces
     /// </summary>
     public enum ChessPlayer
     {
-        White,
-        Black
+        White, Black
+    }
+
+    public enum ChessPieceInfo
+    {
+        Letter = 0, Symbol = 1, Value = 2
     }
 
     /// <summary>
@@ -17,15 +22,15 @@ namespace Chess.ChessUtil.ChessPieces
     /// </summary>
     public abstract class ChessPiece
     {
-        public static Dictionary<Type, char> ChessPieceLetters = new Dictionary<Type, char>()
+        public static ReadOnlyDictionary<Type, string> ChessPiecesInfo = new ReadOnlyDictionary<Type, string>(new Dictionary<Type, string>()
         {
-            {typeof(King), 'K'},
-            {typeof(Queen), 'Q'},
-            {typeof(Rook), 'R'},
-            {typeof(Bishop), 'B'},
-            {typeof(Knight), 'N'},
-            {typeof(Pawn), 'P'},
-        };
+            {typeof(King), "K\u2654" + (char)0},
+            {typeof(Queen), "Q\u2655" + (char)9},
+            {typeof(Rook), "R\u2656" + (char)5},
+            {typeof(Bishop), "B\u2657" + (char)3},
+            {typeof(Knight), "N\u2658" + (char)3},
+            {typeof(Pawn), "P\u2659" + (char)1}
+        });
 
         /// <summary>
         /// Gets the player which the piece belongs to.
@@ -40,7 +45,7 @@ namespace Chess.ChessUtil.ChessPieces
         /// <summary>
         /// Gets the value of current piece.
         /// </summary>
-        public abstract int ValuePoints { get; }
+        public int ValuePoints => ChessPiecesInfo[GetType()][(int)ChessPieceInfo.Value];
 
         /// <summary>
         /// Gets or sets whether the piece is captured.
@@ -55,12 +60,12 @@ namespace Chess.ChessUtil.ChessPieces
         /// <summary>
         /// Gets letter representation of piece.
         /// </summary>
-        public char Letter => ChessPieceLetters[GetType()];
+        public char Letter => ChessPiecesInfo[GetType()][(int)ChessPieceInfo.Letter];
 
         /// <summary>
         /// Gets symbol character of white colored piece.
         /// </summary>
-        protected abstract char WhiteSymbol { get; }
+        private char WhiteSymbol => ChessPiecesInfo[GetType()][(int)ChessPieceInfo.Symbol];
 
         /// <summary>
         /// Gets symbol character of piece.

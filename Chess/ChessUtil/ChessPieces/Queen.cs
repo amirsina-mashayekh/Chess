@@ -8,10 +8,6 @@ namespace Chess.ChessUtil.ChessPieces
     /// </summary>
     public class Queen : ChessPiece
     {
-        public override int ValuePoints => 9;
-
-        protected override char WhiteSymbol => '\u2655';
-
         public Queen(ChessPlayer player, ChessPosition position) : base(player, position)
         {
         }

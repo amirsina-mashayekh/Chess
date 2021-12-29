@@ -7,10 +7,6 @@ namespace Chess.ChessUtil.ChessPieces
     /// </summary>
     public class Rook : ChessPiece
     {
-        public override int ValuePoints => 5;
-
-        protected override char WhiteSymbol => '\u2656';
-
         public Rook(ChessPlayer player, ChessPosition position) : base(player, position)
         {
         }

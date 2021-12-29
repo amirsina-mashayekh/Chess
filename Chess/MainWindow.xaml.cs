@@ -120,20 +120,11 @@ namespace Chess
             AddLastMoveToHistory();
         }
 
-        private async void PrevMoveButton_Click(object sender, RoutedEventArgs e)
+        private void PromotionOption_Click(object sender, RoutedEventArgs e)
         {
-            if (animationRunning) return;
-            board.Undo();
-            await UpdateBoard(true);
-            MovesHistory.SelectedIndex--;
-        }
-
-        private async void NextMoveButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (animationRunning) return;
-            board.Redo();
-            await UpdateBoard(true);
-            MovesHistory.SelectedIndex++;
+            promotionPiece = (sender as Button).Tag as ChessPiece;
+            PawnPromotionGrid.Visibility = Visibility.Collapsed;
+            UpdateBoard().Wait();
         }
 
         private void MovesHistory_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -153,6 +144,22 @@ namespace Chess
                 else board.Undo();
                 UpdateBoard().Wait();
             }
+        }
+
+        private async void PrevMoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (animationRunning) return;
+            board.Undo();
+            await UpdateBoard(true);
+            MovesHistory.SelectedIndex--;
+        }
+
+        private async void NextMoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (animationRunning) return;
+            board.Redo();
+            await UpdateBoard(true);
+            MovesHistory.SelectedIndex++;
         }
 
         private void NewGameButton_Click(object sender, RoutedEventArgs e)

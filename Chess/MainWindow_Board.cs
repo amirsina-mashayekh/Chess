@@ -337,7 +337,8 @@ namespace Chess
                             new Bishop(pl, pos),
                             new Knight(pl, pos),
                         };
-                        PawnPromotionGrid.Visibility = Visibility.Visible;
+                        PromotionOptionsGrid.ColumnDefinitions.Clear();
+                        PromotionOptionsGrid.Children.Clear();
                         for (int i = 0; i < options.Length; i++)
                         {
                             PromotionOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -351,6 +352,7 @@ namespace Chess
                             PromotionOptionsGrid.Children.Add(option);
                             Grid.SetColumn(option, i);
                         }
+                        PawnPromotionGrid.Visibility = Visibility.Visible;
                         return;
                     }
 
@@ -361,6 +363,8 @@ namespace Chess
                     SetPosition(pg, promotionPiece.Position);
                     Panel.SetZIndex(pg, 3);
                     promotionPiece = null;
+                    AddLastMoveToHistory();
+                    MovesHistory.Items.RemoveAt(MovesHistory.SelectedIndex - 1);
                     break;
                 }
             }
@@ -378,7 +382,7 @@ namespace Chess
             // Warn in check king
             King inCheck = null;
             ChessMove lastMove = board.LastMoveNode.Value;
-            if (lastMove != null && lastMove.Symbols.IndexOfAny(new char[] {'+', '#'}) > 0)
+            if (lastMove != null && lastMove.Symbols.IndexOfAny(new char[] {'+', '#'}) > -1)
             {
                 inCheck = board.Pieces
                     .Single(p => p is King && p.Player == board.Turn) as King;
@@ -395,13 +399,6 @@ namespace Chess
                 BoardCanvas.Children.Add(inCheckSQ);
                 SetPosition(inCheckSQ, inCheck.Position);
             }
-        }
-
-        private void PromotionOption_Click(object sender, RoutedEventArgs e)
-        {
-            promotionPiece = (sender as Button).Tag as ChessPiece;
-            PawnPromotionGrid.Visibility = Visibility.Collapsed;
-            UpdateBoard().Wait();
         }
 
         /// <summary>
