@@ -115,9 +115,9 @@ namespace Chess
 
             board.MovePiece(SelectedPiece, col, row);
 
-            AddLastMoveToHistory();
-
             await UpdateBoard(true);
+
+            AddLastMoveToHistory();
         }
 
         private async void PrevMoveButton_Click(object sender, RoutedEventArgs e)

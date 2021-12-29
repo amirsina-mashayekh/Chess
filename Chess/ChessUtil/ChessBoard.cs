@@ -539,7 +539,7 @@ namespace Chess.ChessUtil
                 // Redo pawn promotion
                 char letter = lastMove.Symbols[1];
                 ChessPiece promotion = Pieces
-                    .Single(p => p.Player == moved.Player && p.Letter == letter && p.Position == dst);
+                    .First(p => p.Player == moved.Player && p.Letter == letter && p.Position == dst);
 
                 promotion.IsCaptured = false;
                 moved.IsCaptured = true;
@@ -588,14 +588,14 @@ namespace Chess.ChessUtil
                 throw new ArgumentException("Promotion piece has wrong player.", nameof(promotion));
             }
 
-            if ((pawn.Player == ChessPlayer.White && pawn.Position.Row != ChessPosition.MaxRow)
-                || (pawn.Player == ChessPlayer.Black && pawn.Position.Row != ChessPosition.MinRow))
+            if (!pawn.ShouldPromote())
             {
                 throw new ArgumentException("Cannot promote pawn which is not at end of board.", nameof(pawn));
             }
 
             promotion.Position.Column = pawn.Position.Column;
             promotion.Position.Row = pawn.Position.Row;
+            promotion.Position.IsMoved = true;
 
             Pieces.Add(promotion);
             pawn.IsCaptured = true;

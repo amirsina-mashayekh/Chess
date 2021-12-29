@@ -50,7 +50,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ControlButtons" TargetType="{x:Type Button}">
+        <Style TargetType="{x:Type Button}">
             <Setter Property="FontSize" Value="28" />
             <Setter Property="FontFamily" Value="Segoe UI Emoji" />
             <Setter Property="HorizontalAlignment" Value="Center" />

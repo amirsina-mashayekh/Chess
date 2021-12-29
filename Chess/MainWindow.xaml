@@ -10,6 +10,19 @@
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
+
+        <Grid x:Name="PawnPromotionGrid" Grid.ColumnSpan="2" Background="#C0FFFFFF" Panel.ZIndex="10" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="24">
+                Promote pawn to:
+            </TextBlock>
+            
+            <Grid x:Name="PromotionOptionsGrid" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" />
+        </Grid>
         
         <Viewbox Stretch="Uniform" RenderTransformOrigin="0.5, 0.5" Grid.Column="0" >
             <Canvas x:Name="BoardCanvas" PreviewMouseLeftButtonDown="BoardCanvas_PreviewMouseLeftButtonDown" Margin="25"/>
@@ -33,15 +46,15 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 
-                <Button x:Name="PrevMoveButton" Grid.Column="0" Click="PrevMoveButton_Click" IsEnabled="False" Style="{StaticResource ControlButtons}">
+                <Button x:Name="PrevMoveButton" Grid.Column="0" Click="PrevMoveButton_Click" IsEnabled="False">
                     &#x2B05;
                     <Button.ToolTip>Previous Move</Button.ToolTip>
                 </Button>
-                <Button x:Name="NewGameButton" Grid.Column="1" Click="NewGameButton_Click" IsEnabled="True" Style="{StaticResource ControlButtons}">
+                <Button x:Name="NewGameButton" Grid.Column="1" Click="NewGameButton_Click" IsEnabled="True">
                     &#x2795;
                     <Button.ToolTip>New Game</Button.ToolTip>
                 </Button>
-                <Button x:Name="NextMoveButton" Grid.Column="2" Click="NextMoveButton_Click" IsEnabled="False" Style="{StaticResource ControlButtons}">
+                <Button x:Name="NextMoveButton" Grid.Column="2" Click="NextMoveButton_Click" IsEnabled="False">
                     &#x27A1;
                     <Button.ToolTip>Next Move</Button.ToolTip>
                 </Button>

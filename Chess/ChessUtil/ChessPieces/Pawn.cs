@@ -42,5 +42,15 @@ namespace Chess.ChessUtil.ChessPieces
 
             return moves;
         }
+
+        /// <summary>
+        /// Indicates whether the pawn should be promoted.
+        /// </summary>
+        /// <returns><c>true</c> if pawn is at the opponet end of board. <c>false</c> otherwise.</returns>
+        public bool ShouldPromote()
+        {
+            return (Player == ChessPlayer.White && Position.Row == ChessPosition.MaxRow)
+                || (Player == ChessPlayer.Black && Position.Row == ChessPosition.MinRow);
+        }
     }
 }

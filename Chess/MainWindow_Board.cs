@@ -36,17 +36,17 @@ namespace Chess
         /// <summary>
         /// Brush of <c>SelectedPiece</c>'s square.
         /// </summary>
-        public static readonly Brush selectedSquareBrush = new SolidColorBrush(Color.FromArgb(128, 0, 127, 255));
+        private static readonly Brush selectedSquareBrush = new SolidColorBrush(Color.FromArgb(128, 0, 127, 255));
 
         /// <summary>
         /// Brush of highlighted squares (available moves for <c>SelectedPiece</c>).
         /// </summary>
-        public static readonly Brush availableSquareBrush = new SolidColorBrush(Color.FromArgb(64, 255, 255, 0));
+        private static readonly Brush availableSquareBrush = new SolidColorBrush(Color.FromArgb(64, 255, 255, 0));
 
         /// <summary>
         /// Brush of in check square.
         /// </summary>
-        public static readonly Brush inCheckSquareBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
+        private static readonly Brush inCheckSquareBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
 
         /// <summary>
         /// <c>ChessBoard</c> object which controls game logics and saves states.
@@ -123,9 +123,14 @@ namespace Chess
         private bool animationRunning;
 
         /// <summary>
+        /// Piece to replace pawn in next promotion.
+        /// </summary>
+        private ChessPiece promotionPiece = null;
+
+        /// <summary>
         /// Initializes a new game.
         /// </summary>
-        public void InitNewGame()
+        private void InitNewGame()
         {
             board = new ChessBoard();
             foreach (Viewbox piece in pieces.Values)
@@ -138,31 +143,41 @@ namespace Chess
             // Draw pieces
             foreach (ChessPiece piece in board.Pieces)
             {
-                TextBlock symbol = new TextBlock()
-                {
-                    Text = piece.Symbol.ToString(),
-                    FontFamily = new FontFamily("Segoe UI Symbol"),
-                    FontSize = 24,
-                    TextAlignment = TextAlignment.Center,
-                    Width = 24,
-                    Height = 29
-                };
-                symbol.Margin = new Thickness(0, symbol.Width - symbol.Height, 0, 0);
-
-                Viewbox box = new Viewbox()
-                {
-                    Child = symbol,
-                    Stretch = Stretch.Uniform,
-                    Width = squareSize,
-                    Height = squareSize,
-                    ClipToBounds = true
-                };
-                box.MouseLeftButtonDown += Piece_MouseLeftButtonDown;
-
-                pieces.Add(piece, box);
+                pieces.Add(piece, GetGraphicalChessPiece(piece));
             }
 
             UpdateBoard().Wait();
+        }
+
+        /// <summary>
+        /// Converts a chess piece to graphical form.
+        /// </summary>
+        /// <param name="piece">The piece to be converted.</param>
+        /// <returns>A <c>Viewbox</c> which represents <paramref name="piece"/> graphically.</returns>
+        private Viewbox GetGraphicalChessPiece(ChessPiece piece)
+        {
+            TextBlock symbol = new TextBlock()
+            {
+                Text = piece.Symbol.ToString(),
+                FontFamily = new FontFamily("Segoe UI Symbol"),
+                FontSize = 24,
+                TextAlignment = TextAlignment.Center,
+                Width = 24,
+                Height = 29
+            };
+            symbol.Margin = new Thickness(0, symbol.Width - symbol.Height, 0, 0);
+
+            Viewbox box = new Viewbox()
+            {
+                Child = symbol,
+                Stretch = Stretch.Uniform,
+                Width = squareSize,
+                Height = squareSize,
+                ClipToBounds = true
+            };
+            box.MouseLeftButtonDown += Piece_MouseLeftButtonDown;
+
+            return box;
         }
 
         /// <summary>
@@ -170,7 +185,7 @@ namespace Chess
         /// </summary>
         /// <param name="position">The position to be converted.</param>
         /// <returns>The square on chessboard which is in <paramref name="position"/>.</returns>
-        public Rectangle ChessPositionToSquare(ChessPosition position)
+        private Rectangle ChessPositionToSquare(ChessPosition position)
         {
             return squares[position.Column - 1, position.Row - 1];
         }
@@ -180,7 +195,7 @@ namespace Chess
         /// </summary>
         /// <param name="element">The element to be moved.</param>
         /// <param name="position">The position where <paramref name="element"/> should be moved to.</param>
-        public void SetPosition(UIElement element, ChessPosition position)
+        private void SetPosition(UIElement element, ChessPosition position)
         {
             Rectangle square = ChessPositionToSquare(position);
             Canvas.SetBottom(element, Canvas.GetBottom(square));
@@ -193,7 +208,7 @@ namespace Chess
         /// <param name="piece">Graphical representation of the piece to be moved.</param>
         /// <param name="position">The position where <paramref name="piece"/> should be moved to.</param>
         /// <returns>A <c>Task</c> object.</returns>
-        public async Task MovePieceToPosition(Viewbox piece, ChessPosition position)
+        private async Task MovePieceToPosition(Viewbox piece, ChessPosition position)
         {
             Rectangle square = ChessPositionToSquare(position);
             int z = Panel.GetZIndex(square);
@@ -257,7 +272,7 @@ namespace Chess
         /// </summary>
         /// <param name="animate">Indicated if pieces should be moved animatedly.</param>
         /// <returns>A <c>Task</c> object.</returns>
-        public async Task UpdateBoard(bool animate = false)
+        private async Task UpdateBoard(bool animate = false)
         {
             PrevMoveButton.IsEnabled = board.LastMoveNode.Previous != null;
             NextMoveButton.IsEnabled = board.LastMoveNode.Next != null;
@@ -275,18 +290,20 @@ namespace Chess
                 }
             }
 
-            // Perform moves and add new pieces
+            // Add new pieces
+            foreach (KeyValuePair<ChessPiece, Viewbox> piece in pieces)
+            {
+                if (!piece.Key.IsCaptured && !BoardCanvas.Children.Contains(piece.Value))
+                {
+                    BoardCanvas.Children.Add(piece.Value);
+                    Panel.SetZIndex(piece.Value, 3);
+                }
+            }
+
+            // Perform moves
             foreach (ChessPiece piece in board.Pieces)
             {
                 Viewbox pieceBox = pieces[piece];
-
-                if (piece.IsCaptured) continue;
-
-                if (!BoardCanvas.Children.Contains(pieceBox))
-                {
-                    BoardCanvas.Children.Add(pieceBox);
-                    Panel.SetZIndex(pieceBox, 3);
-                }
 
                 Rectangle currentSQ = ChessPositionToSquare(piece.Position);
                 if (Canvas.GetBottom(currentSQ) != Canvas.GetBottom(pieceBox)
@@ -303,29 +320,68 @@ namespace Chess
                 }
             }
 
-            // Remove captured pieces
-            // Created separate loop so that pieces are removed after loop
+            // Check for pawn promotions
             foreach (ChessPiece piece in board.Pieces)
             {
-                Viewbox pieceBox = pieces[piece];
+                if (piece is Pawn p && !p.IsCaptured && p.ShouldPromote()
+                    && !board.LastMoveNode.Value.Symbols.StartsWith("="))    // If there is "=" in history, last move was a redo
+                {
+                    if (promotionPiece is null)
+                    {
+                        ChessPosition pos = p.Position.Copy();
+                        ChessPlayer pl = p.Player;
+                        ChessPiece[] options = new ChessPiece[]
+                        {
+                            new Queen(pl, pos),
+                            new Rook(pl, pos),
+                            new Bishop(pl, pos),
+                            new Knight(pl, pos),
+                        };
+                        PawnPromotionGrid.Visibility = Visibility.Visible;
+                        for (int i = 0; i < options.Length; i++)
+                        {
+                            PromotionOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                            Button option = new Button()
+                            {
+                                Content = options[i].Symbol,
+                                FontSize = 48,
+                                Tag = options[i]
+                            };
+                            option.Click += PromotionOption_Click;
+                            PromotionOptionsGrid.Children.Add(option);
+                            Grid.SetColumn(option, i);
+                        }
+                        return;
+                    }
 
+                    Viewbox pg = GetGraphicalChessPiece(promotionPiece);
+                    pieces.Add(promotionPiece, pg);
+                    board.PromotePawn(p, promotionPiece);
+                    BoardCanvas.Children.Add(pg);
+                    SetPosition(pg, promotionPiece.Position);
+                    Panel.SetZIndex(pg, 3);
+                    promotionPiece = null;
+                    break;
+                }
+            }
+
+            // Remove captured pieces
+            // Created separate loop so that pieces are removed after animation
+            foreach (ChessPiece piece in board.Pieces)
+            {
                 if (piece.IsCaptured)
                 {
-                    BoardCanvas.Children.Remove(pieceBox);
+                    BoardCanvas.Children.Remove(pieces[piece]);
                 }
             }
 
             // Warn in check king
             King inCheck = null;
-            if (board.InCheck(ChessPlayer.White))
+            ChessMove lastMove = board.LastMoveNode.Value;
+            if (lastMove != null && lastMove.Symbols.IndexOfAny(new char[] {'+', '#'}) > 0)
             {
                 inCheck = board.Pieces
-                    .Single(p => p is King && p.Player == ChessPlayer.White) as King;
-            }
-            else if (board.InCheck(ChessPlayer.Black))
-            {
-                inCheck = board.Pieces
-                    .Single(p => p is King && p.Player == ChessPlayer.Black) as King;
+                    .Single(p => p is King && p.Player == board.Turn) as King;
             }
 
             if (inCheck != null)
@@ -341,10 +397,17 @@ namespace Chess
             }
         }
 
+        private void PromotionOption_Click(object sender, RoutedEventArgs e)
+        {
+            promotionPiece = (sender as Button).Tag as ChessPiece;
+            PawnPromotionGrid.Visibility = Visibility.Collapsed;
+            UpdateBoard().Wait();
+        }
+
         /// <summary>
         /// Adds the last move to <c>MovesHistory</c>.
         /// </summary>
-        public void AddLastMoveToHistory()
+        private void AddLastMoveToHistory()
         {
             int index = MovesHistory.SelectedIndex + 1;
             DockPanel content = new DockPanel();
