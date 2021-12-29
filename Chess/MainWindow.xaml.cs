@@ -87,34 +87,7 @@ namespace Chess
                 }
             }
 
-            // Draw pieces
-            foreach (ChessPiece piece in board.Pieces)
-            {
-                TextBlock symbol = new TextBlock()
-                {
-                    Text = piece.Symbol.ToString(),
-                    FontFamily = new FontFamily("Segoe UI Symbol"),
-                    FontSize = 24,
-                    TextAlignment = TextAlignment.Center,
-                    Width = 24,
-                    Height = 29
-                };
-                symbol.Margin = new Thickness(0, symbol.Width - symbol.Height, 0, 0);
-
-                Viewbox box = new Viewbox()
-                {
-                    Child = symbol,
-                    Stretch = Stretch.Uniform,
-                    Width = squareSize,
-                    Height = squareSize,
-                    ClipToBounds = true
-                };
-                box.MouseLeftButtonDown += Piece_MouseLeftButtonDown;
-
-                pieces.Add(piece, box);
-            }
-
-            UpdateBoard(false).Wait();
+            InitNewGame();
         }
 
         private void BoardCanvas_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -163,7 +136,7 @@ namespace Chess
             MovesHistory.SelectedIndex++;
         }
 
-        private async void MovesHistory_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void MovesHistory_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!(MovesHistory.SelectedItem is ListViewItem item))
                 return;
@@ -178,8 +151,18 @@ namespace Chess
             {
                 if (redo) board.Redo();
                 else board.Undo();
-                await UpdateBoard(false);
+                UpdateBoard().Wait();
             }
+        }
+
+        private void NewGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show(
+                "Are you sure you want to start a new game?\nAll data of current game will be lost.",
+                "New Game", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+            
+            if (result == MessageBoxResult.Yes)
+                InitNewGame();
         }
     }
 }

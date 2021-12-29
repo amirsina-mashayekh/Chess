@@ -51,7 +51,7 @@ namespace Chess
         /// <summary>
         /// <c>ChessBoard</c> object which controls game logics and saves states.
         /// </summary>
-        private readonly ChessBoard board = new ChessBoard();
+        private ChessBoard board = new ChessBoard();
 
         /// <summary>
         /// A dictionary containing all pieces and corresponding graphical representations.
@@ -121,6 +121,49 @@ namespace Chess
         /// Indicates whether an animation is running on chessboard.
         /// </summary>
         private bool animationRunning;
+
+        /// <summary>
+        /// Initializes a new game.
+        /// </summary>
+        public void InitNewGame()
+        {
+            board = new ChessBoard();
+            foreach (Viewbox piece in pieces.Values)
+            {
+                BoardCanvas.Children.Remove(piece);
+            }
+            pieces.Clear();
+            MovesHistory.Items.Clear();
+
+            // Draw pieces
+            foreach (ChessPiece piece in board.Pieces)
+            {
+                TextBlock symbol = new TextBlock()
+                {
+                    Text = piece.Symbol.ToString(),
+                    FontFamily = new FontFamily("Segoe UI Symbol"),
+                    FontSize = 24,
+                    TextAlignment = TextAlignment.Center,
+                    Width = 24,
+                    Height = 29
+                };
+                symbol.Margin = new Thickness(0, symbol.Width - symbol.Height, 0, 0);
+
+                Viewbox box = new Viewbox()
+                {
+                    Child = symbol,
+                    Stretch = Stretch.Uniform,
+                    Width = squareSize,
+                    Height = squareSize,
+                    ClipToBounds = true
+                };
+                box.MouseLeftButtonDown += Piece_MouseLeftButtonDown;
+
+                pieces.Add(piece, box);
+            }
+
+            UpdateBoard().Wait();
+        }
 
         /// <summary>
         /// Convers a <c>ChessPosition</c> to corresponding square on chessboard.
@@ -214,7 +257,7 @@ namespace Chess
         /// </summary>
         /// <param name="animate">Indicated if pieces should be moved animatedly.</param>
         /// <returns>A <c>Task</c> object.</returns>
-        public async Task UpdateBoard(bool animate)
+        public async Task UpdateBoard(bool animate = false)
         {
             PrevMoveButton.IsEnabled = board.LastMoveNode.Previous != null;
             NextMoveButton.IsEnabled = board.LastMoveNode.Next != null;
