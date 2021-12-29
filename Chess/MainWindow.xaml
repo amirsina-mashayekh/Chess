@@ -4,7 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="400" MinWidth="600" Height="450" Width="650">
+        Title="Chess" MinHeight="400" MinWidth="600" Height="450" Width="650">
     <Grid Background="Gray">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"/>
@@ -22,9 +22,20 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <ListView x:Name="MovesHistory" ItemContainerStyle="{StaticResource MovesHistoryItemsStyle}" 
-                      SelectionMode="Single" FontSize="18" Grid.Column="0" AlternationCount="2" />
-
+            <ListView x:Name="MovesHistory" Background="DarkSlateGray" SelectionMode="Single" FontSize="18"
+                      Grid.Column="0" AlternationCount="2" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                      ItemContainerStyle="{StaticResource MovesHistoryItemsStyle}" SelectionChanged="MovesHistory_SelectionChanged" />
+            
+            <DockPanel x:Name="ControlsPanel" Grid.Row="1" LastChildFill="False">
+                <Button x:Name="PrevMoveButton" DockPanel.Dock="Left" Click="PrevMoveButton_Click" IsEnabled="False" Style="{StaticResource ControlButtons}">
+                    &#x2B05;
+                    <Button.ToolTip>Previous Move</Button.ToolTip>
+                </Button>
+                <Button x:Name="NextMoveButton" DockPanel.Dock="Right" Click="NextMoveButton_Click" IsEnabled="False" Style="{StaticResource ControlButtons}">
+                    &#x27A1;
+                    <Button.ToolTip>Next Move</Button.ToolTip>
+                </Button>
+            </DockPanel>
         </Grid>
     </Grid>
 </Window>
