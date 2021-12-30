@@ -70,7 +70,7 @@ namespace Chess.ChessUtil
 
             if (CapturedPiece != null)
             {
-                str.Append('x').Append(CapturedPiece);
+                str.Append('x').Append(CapturedPiece.Letter);
             }
             str.Append(Destination);
 

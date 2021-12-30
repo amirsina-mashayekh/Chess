@@ -138,7 +138,9 @@ namespace Chess
                 BoardCanvas.Children.Remove(piece);
             }
             pieces.Clear();
+            MovesHistory.SelectionChanged -= MovesHistory_SelectionChanged;
             MovesHistory.Items.Clear();
+            MovesHistory.SelectionChanged += MovesHistory_SelectionChanged;
 
             // Draw pieces
             foreach (ChessPiece piece in board.Pieces)
@@ -399,6 +401,61 @@ namespace Chess
                 BoardCanvas.Children.Add(inCheckSQ);
                 SetPosition(inCheckSQ, inCheck.Position);
             }
+
+            // Calculate scores and update captured pieces
+            for (int i = 0; i < WhiteStatusPanel.Children.Count; i++)
+            {
+                TextBlock textBlock = WhiteStatusPanel.Children[i] as TextBlock;
+                if (textBlock != null && textBlock.Tag != null)
+                {
+                    WhiteStatusPanel.Children.RemoveAt(i);
+                    i--;
+                }
+            }
+            for (int i = 0; i < BlackStatusPanel.Children.Count; i++)
+            {
+                TextBlock textBlock = BlackStatusPanel.Children[i] as TextBlock;
+                if (textBlock != null && textBlock.Tag != null)
+                {
+                    BlackStatusPanel.Children.RemoveAt(i);
+                    i--;
+                }
+            }
+            LinkedListNode<ChessMove> cursor = board.MovesHistory.First;
+            int whiteScore = 0;
+            int blackScore = 0;
+            if (cursor.Next != null)
+            {;
+                while (cursor != board.LastMoveNode)
+                {
+                    cursor = cursor.Next;
+                    if (cursor.Value.CapturedPiece is ChessPiece captured)
+                    {
+                        int val = captured.ValuePoints;
+                        TextBlock capturedSymbol = new TextBlock()
+                        {
+                            Text = captured.Symbol.ToString(),
+                            FontFamily = new FontFamily("Segoe UI Symbol"),
+                            FontSize = 20,
+                            Margin = new Thickness(0, 0, -5, 0),
+                            Tag = captured,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+                        if (captured.Player == ChessPlayer.Black)
+                        {
+                            whiteScore += val;
+                            WhiteStatusPanel.Children.Add(capturedSymbol);
+                        }
+                        else
+                        {
+                            blackScore += val;
+                            BlackStatusPanel.Children.Add(capturedSymbol);
+                        }
+                    }
+                }
+            }
+            WhiteScore.Text = whiteScore.ToString();
+            BlackScore.Text = blackScore.ToString();
         }
 
         /// <summary>

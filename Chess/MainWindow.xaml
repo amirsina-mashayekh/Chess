@@ -4,6 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
+        xmlns:local="clr-namespace:Chess"
         Title="Chess" MinHeight="400" MinWidth="600" Height="450" Width="650">
     <Grid Background="Gray">
         <Grid.ColumnDefinitions>
@@ -24,13 +25,14 @@
             <Grid x:Name="PromotionOptionsGrid" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" />
         </Grid>
         
-        <Viewbox Stretch="Uniform" RenderTransformOrigin="0.5, 0.5" Grid.Column="0" >
-            <Canvas x:Name="BoardCanvas" PreviewMouseLeftButtonDown="BoardCanvas_PreviewMouseLeftButtonDown" Margin="25"/>
+        <Viewbox Stretch="Uniform" RenderTransformOrigin="0.5,0.5" Grid.Column="0" >
+            <Canvas x:Name="BoardCanvas" PreviewMouseLeftButtonDown="BoardCanvas_PreviewMouseLeftButtonDown" Margin="25" />
         </Viewbox>
 
-        <Grid Grid.Column="1" Margin="0, 25, 20 , 25">
+        <Grid Grid.Column="1" Margin="0,25,20,25">
             <Grid.RowDefinitions>
                 <RowDefinition />
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
@@ -39,7 +41,7 @@
                       Grid.Column="0" AlternationCount="2" ScrollViewer.VerticalScrollBarVisibility="Visible"
                       ItemContainerStyle="{StaticResource MovesHistoryItemsStyle}" SelectionChanged="MovesHistory_SelectionChanged" />
 
-            <Grid  Grid.Row="1">
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition />
@@ -59,6 +61,16 @@
                     <Button.ToolTip>Next Move</Button.ToolTip>
                 </Button>
             </Grid>
+            
+            <WrapPanel x:Name="WhiteStatusPanel" Grid.Row="2">
+                <TextBlock Width="55" FontSize="20">White</TextBlock>
+                <TextBlock x:Name="WhiteScore" FontSize="20" Margin="0,0,5,0">0</TextBlock>
+            </WrapPanel>
+            
+            <WrapPanel x:Name="BlackStatusPanel" Grid.Row="3">
+                <TextBlock Width="55" FontSize="20">Black</TextBlock>
+                <TextBlock x:Name="BlackScore" FontSize="20" Margin="0,0,5,0">0</TextBlock>
+            </WrapPanel>
         </Grid>
     </Grid>
 </Window>

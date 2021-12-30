@@ -129,21 +129,24 @@ namespace Chess
 
         private void MovesHistory_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!(MovesHistory.SelectedItem is ListViewItem item))
-                return;
+            LinkedListNode<ChessMove> moveNode;
+
+            if (MovesHistory.SelectedItem is ListViewItem item)
+                moveNode = item.Tag as LinkedListNode<ChessMove>;
+            else
+                moveNode = board.MovesHistory.First;
 
             ListViewItem prev = e.RemovedItems.Count > 0 ? e.RemovedItems[0] as ListViewItem : null;
 
-            LinkedListNode<ChessMove> moveNode = item.Tag as LinkedListNode<ChessMove>;
-
+            // Undo or redo
             bool redo = prev is null || MovesHistory.Items.IndexOf(prev) < MovesHistory.SelectedIndex;
 
             while (board.LastMoveNode != moveNode)
             {
                 if (redo) board.Redo();
                 else board.Undo();
-                UpdateBoard().Wait();
             }
+            UpdateBoard().Wait();
         }
 
         private async void PrevMoveButton_Click(object sender, RoutedEventArgs e)
