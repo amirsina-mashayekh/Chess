@@ -390,7 +390,7 @@ namespace Chess
             // Warn in check king
             King inCheck = null;
             ChessMove lastMove = board.LastMoveNode.Value;
-            if (lastMove != null && lastMove.Symbols.IndexOfAny(new char[] {'+', '#'}) > -1)
+            if (lastMove != null && lastMove.Symbols.IndexOfAny(new char[] { '+', '#' }) > -1)
             {
                 inCheck = board.Pieces
                     .Single(p => p is King && p.Player == board.Turn) as King;
@@ -460,6 +460,7 @@ namespace Chess
             }
             WhiteScore.Text = whiteScore.ToString();
             BlackScore.Text = blackScore.ToString();
+
             FlipBoard();
         }
 
@@ -502,6 +503,9 @@ namespace Chess
             MovesHistory.ScrollIntoView(item);
         }
 
+        /// <summary>
+        /// Flip board 180 degrees (if required).
+        /// </summary>
         private void FlipBoard()
         {
             RotateTransform trans = null;

@@ -121,6 +121,21 @@ namespace Chess
             await UpdateBoard(true);
 
             AddLastMoveToHistory();
+
+            ChessMove lastMove = board.LastMoveNode.Value;
+            if (board.Ended)
+            {
+                string msg;
+                if (lastMove != null && lastMove.Symbols.IndexOf('#') > -1)
+                {
+                    msg = $"{lastMove.Player} won!";
+                }
+                else
+                {
+                    msg = $"{board.Turn} stalemated. Game is drawn.";
+                }
+                MessageBox.Show(msg, "Game finished", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         private void PromotionOption_Click(object sender, RoutedEventArgs e)
