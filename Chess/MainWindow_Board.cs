@@ -128,6 +128,11 @@ namespace Chess
         private ChessPiece promotionPiece = null;
 
         /// <summary>
+        /// A transform to flip objects.
+        /// </summary>
+        private readonly RotateTransform flip = new RotateTransform(180);
+
+        /// <summary>
         /// Initializes a new game.
         /// </summary>
         private void InitNewGame()
@@ -175,7 +180,8 @@ namespace Chess
                 Stretch = Stretch.Uniform,
                 Width = squareSize,
                 Height = squareSize,
-                ClipToBounds = true
+                ClipToBounds = true,
+                RenderTransformOrigin = new Point(0.5, 0.5)
             };
             box.MouseLeftButtonDown += Piece_MouseLeftButtonDown;
 
@@ -405,8 +411,7 @@ namespace Chess
             // Calculate scores and update captured pieces
             for (int i = 0; i < WhiteStatusPanel.Children.Count; i++)
             {
-                TextBlock textBlock = WhiteStatusPanel.Children[i] as TextBlock;
-                if (textBlock != null && textBlock.Tag != null)
+                if (WhiteStatusPanel.Children[i] is TextBlock textBlock && textBlock.Tag != null)
                 {
                     WhiteStatusPanel.Children.RemoveAt(i);
                     i--;
@@ -414,8 +419,7 @@ namespace Chess
             }
             for (int i = 0; i < BlackStatusPanel.Children.Count; i++)
             {
-                TextBlock textBlock = BlackStatusPanel.Children[i] as TextBlock;
-                if (textBlock != null && textBlock.Tag != null)
+                if (BlackStatusPanel.Children[i] is TextBlock textBlock && textBlock.Tag != null)
                 {
                     BlackStatusPanel.Children.RemoveAt(i);
                     i--;
@@ -456,6 +460,7 @@ namespace Chess
             }
             WhiteScore.Text = whiteScore.ToString();
             BlackScore.Text = blackScore.ToString();
+            FlipBoard();
         }
 
         /// <summary>
@@ -495,6 +500,21 @@ namespace Chess
                 MovesHistory.Items.RemoveAt(index);
             }
             MovesHistory.ScrollIntoView(item);
+        }
+
+        private void FlipBoard()
+        {
+            RotateTransform trans = null;
+
+            if ((bool)FlipBoardCheckBox.IsChecked && board.Turn == ChessPlayer.Black) 
+                trans = flip;
+
+            boardBox.RenderTransform = trans;
+            foreach (UIElement element in BoardCanvas.Children)
+            {
+                if (element is Viewbox || element is TextBlock)
+                    element.RenderTransform = trans;
+            }
         }
     }
 }

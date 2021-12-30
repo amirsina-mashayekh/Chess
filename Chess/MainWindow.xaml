@@ -25,13 +25,14 @@
             <Grid x:Name="PromotionOptionsGrid" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" />
         </Grid>
         
-        <Viewbox Stretch="Uniform" RenderTransformOrigin="0.5,0.5" Grid.Column="0" >
+        <Viewbox x:Name="boardBox" Stretch="Uniform" RenderTransformOrigin="0.5,0.5" Grid.Column="0" >
             <Canvas x:Name="BoardCanvas" PreviewMouseLeftButtonDown="BoardCanvas_PreviewMouseLeftButtonDown" Margin="25" />
         </Viewbox>
 
         <Grid Grid.Column="1" Margin="0,25,20,25">
             <Grid.RowDefinitions>
                 <RowDefinition />
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
@@ -71,6 +72,13 @@
                 <TextBlock Width="55" FontSize="20">Black</TextBlock>
                 <TextBlock x:Name="BlackScore" FontSize="20" Margin="0,0,5,0">0</TextBlock>
             </WrapPanel>
+
+            <Grid Grid.Row="4">
+                <CheckBox x:Name="FlipBoardCheckBox" IsChecked="True" Checked="FlipBoardCheckBox_CheckChanged"
+                          Unchecked="FlipBoardCheckBox_CheckChanged">
+                    Flip board based on turn
+                </CheckBox>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

@@ -59,7 +59,8 @@ namespace Chess
                             FontWeight = FontWeights.SemiBold,
                             TextAlignment = TextAlignment.Right,
                             Foreground = (i + j) % 2 == 0 ? whiteSquaresBrush : blackSquaresBrush,
-                            Width = squareSize * 0.95
+                            Width = squareSize * 0.95,
+                            RenderTransformOrigin = new Point(0.52, 0.5)
                         };
                         BoardCanvas.Children.Add(file);
                         Canvas.SetLeft(file, i * squareSize);
@@ -77,7 +78,9 @@ namespace Chess
                             FontWeight = FontWeights.SemiBold,
                             TextAlignment = TextAlignment.Left,
                             Foreground = (i + j) % 2 == 0 ? whiteSquaresBrush : blackSquaresBrush,
-                            Height = squareSize
+                            Height = squareSize,
+                            Width = squareSize,
+                            RenderTransformOrigin = new Point(0.45, 0.5)
                         };
                         BoardCanvas.Children.Add(file);
                         Canvas.SetLeft(file, i * squareSize + squareSize * 0.05);
@@ -173,6 +176,11 @@ namespace Chess
             
             if (result == MessageBoxResult.Yes)
                 InitNewGame();
+        }
+
+        private void FlipBoardCheckBox_CheckChanged(object sender, RoutedEventArgs e)
+        {
+            FlipBoard();
         }
     }
 }
