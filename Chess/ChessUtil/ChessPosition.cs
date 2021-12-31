@@ -180,8 +180,10 @@ namespace Chess.ChessUtil
         /// <returns>A new <c>ChessPosition</c> instance with same properties with this instance.</returns>
         public ChessPosition Copy()
         {
-            ChessPosition pos = new ChessPosition(_column, _row);
-            pos.IsMoved = IsMoved;
+            ChessPosition pos = new ChessPosition(_column, _row)
+            {
+                IsMoved = IsMoved
+            };
             return pos;
         }
 

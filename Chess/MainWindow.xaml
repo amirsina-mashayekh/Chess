@@ -36,6 +36,7 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
             <ListView x:Name="MovesHistory" Background="DarkSlateGray" SelectionMode="Single" FontSize="18"
@@ -73,12 +74,19 @@
                 <TextBlock x:Name="BlackScore" FontSize="20" Margin="0,0,5,0">0</TextBlock>
             </WrapPanel>
 
-            <Grid Grid.Row="4">
-                <CheckBox x:Name="FlipBoardCheckBox" IsChecked="True" Checked="FlipBoardCheckBox_CheckChanged"
-                          Unchecked="FlipBoardCheckBox_CheckChanged">
-                    Flip board based on turn
-                </CheckBox>
-            </Grid>
+            <CheckBox x:Name="FlipBoardCheckBox" Grid.Row="4" IsChecked="True" Checked="FlipBoardCheckBox_CheckChanged"
+                        Unchecked="FlipBoardCheckBox_CheckChanged">
+                Flip board based on turn
+            </CheckBox>
+
+            <DockPanel Grid.Row="5" LastChildFill="False">
+                <Button x:Name="DrawOfferButton" FontSize="18" DockPanel.Dock="Left" Click="DrawOfferButton_Click">
+                    Offer Draw
+                </Button>
+                <Button x:Name="ResignButton" FontSize="18" DockPanel.Dock="Right" Click="ResignButton_Click">
+                    Resign
+                </Button>
+            </DockPanel>
         </Grid>
     </Grid>
 </Window>

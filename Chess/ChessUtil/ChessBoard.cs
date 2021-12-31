@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Chess.ChessUtil
 {
@@ -9,7 +10,7 @@ namespace Chess.ChessUtil
     /// Represents a chess board.
     /// Provides methods to manage chess board.
     /// </summary>
-    public class ChessBoard
+    public partial class ChessBoard
     {
         /// <summary>
         /// Collection of all board pieces.
@@ -24,16 +25,47 @@ namespace Chess.ChessUtil
         /// <summary>
         /// Toggles player turn.
         /// </summary>
-        public void ToggleTurn()
+        private void ToggleTurn()
         {
             if (Turn == ChessPlayer.White) Turn = ChessPlayer.Black;
             else Turn = ChessPlayer.White;
         }
 
+        private bool _ended;
+
         /// <summary>
         /// Gets or sets whether game is finished.
         /// </summary>
-        public bool Ended { get; set; }
+        public bool Ended
+        {
+            get => _ended;
+            set
+            {
+                _ended = value;
+                if (value && MovesHistory.Last.Value.Destination != null)
+                {
+                    King winner = Pieces.SingleOrDefault(p => p is King && p.Player == Winner) as King;
+                    ChessMove result = new ChessMove(winner, GetResultNotation());
+                    MovesHistory.AddLast(result);
+                    LastMoveNode = MovesHistory.Last.Previous;
+                }
+            }
+        }
+
+        private ChessPlayer? _winner;
+
+        /// <summary>
+        /// Gets or sets the winner of game. Returns <c>null</c> if game is not finished or drawn.
+        /// </summary>
+        public ChessPlayer? Winner
+        {
+            get => _winner;
+            set
+            {
+                _winner = value;
+                Ended = value != null;
+            }
+        }
 
         /// <summary>
         /// History of moves.
@@ -85,7 +117,7 @@ namespace Chess.ChessUtil
                 new Pawn(ChessPlayer.Black, new ChessPosition('g', 7)),
                 new Pawn(ChessPlayer.Black, new ChessPosition('h', 7))
             };
-            Ended = false;
+            Winner = null;
             Turn = ChessPlayer.White;
             MovesHistory = new LinkedList<ChessMove>();
             MovesHistory.AddFirst(null as ChessMove);
@@ -368,7 +400,7 @@ namespace Chess.ChessUtil
 
             ChessPosition src = piece.Position.Copy();
             ChessPiece occupier = GetPositionOccupier(new ChessPosition(column, row));
-            string symbols = "";
+            StringBuilder symbols = new StringBuilder();
 
             if (occupier != null)
             {
@@ -392,14 +424,14 @@ namespace Chess.ChessUtil
                     // Kingside
                     GetPositionOccupier(new ChessPosition(ChessPosition.MaxColumn, row))
                         .Position.Column = column - 1;
-                    symbols = "0-0";
+                    symbols.Append("0-0");
                 }
                 else
                 {
                     // Queenside
                     GetPositionOccupier(new ChessPosition(ChessPosition.MinColumn, row))
                         .Position.Column = column + 1;
-                    symbols = "0-0-0";
+                    symbols.Append("0-0-0");
                 }
             }
 
@@ -409,15 +441,7 @@ namespace Chess.ChessUtil
 
             ToggleTurn();
             // Check status
-            bool inCheck = InCheck(Turn);
-            if (!HasValidMoves(Turn))
-            {
-                // Either Stalemate or Checkmate
-                if (inCheck) symbols += "#";
-                Ended = true;
-            }
-            else if (inCheck) symbols += "+";
-
+            LinkedListNode<ChessMove> move = new LinkedListNode<ChessMove>(new ChessMove(src, piece, occupier));
             if (LastMoveNode != null)
             {
                 while (LastMoveNode.Next != null)
@@ -426,8 +450,25 @@ namespace Chess.ChessUtil
                     MovesHistory.RemoveLast();
                 }
             }
-            MovesHistory.AddLast(new ChessMove(src, piece, occupier) { Symbols = symbols });
+            MovesHistory.AddLast(move);
             LastMoveNode = MovesHistory.Last;
+
+            bool inCheck = InCheck(Turn);
+            if (!HasValidMoves(Turn))
+            {
+                // Either Stalemate or Checkmate
+                if (inCheck)
+                {
+                    symbols.Append('#');
+                    ToggleTurn();
+                    Winner = Turn;
+                    ToggleTurn();
+                }
+                Ended = true;
+            }
+            else if (inCheck) symbols.Append('+');
+
+            move.Value.Symbols = symbols.ToString();
         }
 
         /// <summary>
@@ -472,11 +513,19 @@ namespace Chess.ChessUtil
             {
                 throw new InvalidOperationException("There is no move to undo.");
             }
-            ChessMove lastMove = LastMoveNode.Value;
 
+            ChessMove lastMove = LastMoveNode.Value;
             ChessPosition src = lastMove.Source;
             ChessPosition dst = lastMove.Destination;
             ChessPiece moved = lastMove.MovedPiece;
+            LastMoveNode = LastMoveNode.Previous;
+            Winner = null;
+            ToggleTurn();
+
+            if (dst is null)
+            {
+                return true;
+            }
 
             if (!string.IsNullOrEmpty(lastMove.Symbols) && lastMove.Symbols[0] == '=')
             {
@@ -504,9 +553,6 @@ namespace Chess.ChessUtil
                 lastMove.CapturedPiece.IsCaptured = false;
             }
 
-            Ended = false;
-            ToggleTurn();
-            LastMoveNode = LastMoveNode.Previous;
             return LastMoveNode != MovesHistory.First;
         }
 
@@ -527,6 +573,15 @@ namespace Chess.ChessUtil
             ChessPosition dst = lastMove.Destination;
             ChessPiece moved = lastMove.MovedPiece;
 
+            if (dst is null)
+            {
+                Winner = lastMove.Player;
+                Ended = true;
+                LastMoveNode = LastMoveNode.Previous;
+                return false;
+            }
+
+            ToggleTurn();
             moved.Position.Column = dst.Column;
             moved.Position.Row = dst.Row;
             if (lastMove.CapturedPiece != null)
@@ -562,8 +617,11 @@ namespace Chess.ChessUtil
                 }
             }
 
-            ToggleTurn();
             Ended = !HasValidMoves(Turn);
+            if (lastMove.Symbols.IndexOf('#') > -1)
+            {
+                Winner = lastMove.Player;
+            }
             return LastMoveNode.Next != null;
         }
 
@@ -600,18 +658,44 @@ namespace Chess.ChessUtil
             Pieces.Add(promotion);
             pawn.IsCaptured = true;
 
-            string symbols = "=" + promotion.Letter;
+            StringBuilder symbols = new StringBuilder();
+            symbols.Append('=').Append(promotion.Letter);
             ChessPlayer opp = pawn.Player == ChessPlayer.White ? ChessPlayer.Black : ChessPlayer.White;
             bool inCheck = InCheck(opp);
             if (!HasValidMoves(opp))
             {
                 // Either Stalemate or Checkmate
-                if (inCheck) symbols += "#";
+                if (inCheck)
+                {
+                    symbols.Append('#');
+                    Winner = pawn.Player;
+                }
                 Ended = true;
             }
-            else if (inCheck) symbols += "+";
+            else if (inCheck) symbols.Append('+');
 
-            LastMoveNode.Value.Symbols = symbols + LastMoveNode.Value.Symbols;
+            LastMoveNode.Value.Symbols = symbols.ToString() + LastMoveNode.Value.Symbols;
+        }
+
+        /// <summary>
+        /// Returns notation for result of game.
+        /// </summary>
+        /// <returns>Notation for result of game.</returns>
+        public string GetResultNotation()
+        {
+            if (!Ended) return "*";
+
+            StringBuilder resultNotation = new StringBuilder();
+
+            if (Winner is null) resultNotation.Append("1/2-1/2");
+            else
+            {
+                resultNotation.Append(Winner == ChessPlayer.White ? 1 : 0);
+                resultNotation.Append('-');
+                resultNotation.Append(Winner == ChessPlayer.Black ? 1 : 0);
+            }
+
+            return resultNotation.ToString();
         }
     }
 }

@@ -282,9 +282,6 @@ namespace Chess
         /// <returns>A <c>Task</c> object.</returns>
         private async Task UpdateBoard(bool animate = false)
         {
-            PrevMoveButton.IsEnabled = board.LastMoveNode.Previous != null;
-            NextMoveButton.IsEnabled = board.LastMoveNode.Next != null;
-
             SelectedPiece = null;
             // Clear previous in check squares
             for (int i = 0; i < BoardCanvas.Children.Count; i++)
@@ -371,7 +368,7 @@ namespace Chess
                     SetPosition(pg, promotionPiece.Position);
                     Panel.SetZIndex(pg, 3);
                     promotionPiece = null;
-                    AddLastMoveToHistory();
+                    PushMoveToHistory(board.LastMoveNode);
                     MovesHistory.Items.RemoveAt(MovesHistory.SelectedIndex - 1);
                     break;
                 }
@@ -429,7 +426,7 @@ namespace Chess
             int whiteScore = 0;
             int blackScore = 0;
             if (cursor.Next != null)
-            {;
+            {
                 while (cursor != board.LastMoveNode)
                 {
                     cursor = cursor.Next;
@@ -467,7 +464,7 @@ namespace Chess
         /// <summary>
         /// Adds the last move to <c>MovesHistory</c>.
         /// </summary>
-        private void AddLastMoveToHistory()
+        private void PushMoveToHistory(LinkedListNode<ChessMove> moveNode)
         {
             int index = MovesHistory.SelectedIndex + 1;
             DockPanel content = new DockPanel();
@@ -477,11 +474,12 @@ namespace Chess
                 TextAlignment = TextAlignment.Left,
                 Width = 50
             };
+            if (moveNode.Value.Destination is null) moveNumber.Text = "";
             content.Children.Add(moveNumber);
             DockPanel.SetDock(moveNumber, Dock.Left);
             TextBlock moveText = new TextBlock()
             {
-                Text = board.LastMoveNode.Value.ToFAN(),
+                Text = moveNode.Value.ToFAN(),
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(-moveNumber.Width, 0, 0, 0)
             };
@@ -490,7 +488,7 @@ namespace Chess
             ListViewItem item = new ListViewItem
             {
                 Content = content,
-                Tag = board.LastMoveNode
+                Tag = moveNode
             };
 
             MovesHistory.Items.Insert(index, item);
@@ -519,6 +517,20 @@ namespace Chess
                 if (element is Viewbox || element is TextBlock)
                     element.RenderTransform = trans;
             }
+        }
+
+        private void EndGame(ChessPlayer? winner)
+        {
+            board.Winner = winner;
+            board.Ended = true;
+            UpdateBoard().Wait();
+            int nextIndex = MovesHistory.SelectedIndex + 1;
+            while (MovesHistory.Items.Count != nextIndex)
+            {
+                board.MovesHistory.Remove(board.MovesHistory.Last.Previous);
+                MovesHistory.Items.RemoveAt(nextIndex);
+            }
+            PushMoveToHistory(board.MovesHistory.Last);
         }
     }
 }

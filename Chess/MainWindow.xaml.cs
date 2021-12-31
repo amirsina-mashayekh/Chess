@@ -90,6 +90,7 @@ namespace Chess
                 }
             }
 
+            WhiteStatusPanel.Background = availableSquareBrush;
             InitNewGame();
         }
 
@@ -120,21 +121,22 @@ namespace Chess
 
             await UpdateBoard(true);
 
-            AddLastMoveToHistory();
+            PushMoveToHistory(board.LastMoveNode);
 
-            ChessMove lastMove = board.LastMoveNode.Value;
             if (board.Ended)
             {
                 string msg;
-                if (lastMove != null && lastMove.Symbols.IndexOf('#') > -1)
-                {
-                    msg = $"{lastMove.Player} won!";
-                }
-                else
+                if (board.Winner is null)
                 {
                     msg = $"{board.Turn} stalemated. Game is drawn.";
                 }
+                else
+                {
+                    msg = $"{board.Winner} won!";
+                }
                 MessageBox.Show(msg, "Game finished", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                PushMoveToHistory(board.MovesHistory.Last);
             }
         }
 
@@ -156,6 +158,29 @@ namespace Chess
 
             ListViewItem prev = e.RemovedItems.Count > 0 ? e.RemovedItems[0] as ListViewItem : null;
 
+            PrevMoveButton.IsEnabled = MovesHistory.SelectedIndex > -1;
+            NextMoveButton.IsEnabled = MovesHistory.SelectedIndex < MovesHistory.Items.Count - 1;
+
+            if (board.Turn == ChessPlayer.White)
+            {
+                WhiteStatusPanel.Background =
+                    board.Winner == ChessPlayer.Black ? inCheckSquareBrush : availableSquareBrush;
+                BlackStatusPanel.Background = Brushes.Transparent;
+            }
+            else
+            {
+                BlackStatusPanel.Background =
+                    board.Winner == ChessPlayer.White ? inCheckSquareBrush : availableSquareBrush;
+                WhiteStatusPanel.Background = Brushes.Transparent;
+            }
+
+            if (moveNode.Value != null && moveNode.Value.Destination is null)
+            {
+                ResignButton.IsEnabled = DrawOfferButton.IsEnabled = false;
+                return;
+            }
+            ResignButton.IsEnabled = DrawOfferButton.IsEnabled = true;
+
             // Undo or redo
             bool redo = prev is null || MovesHistory.Items.IndexOf(prev) < MovesHistory.SelectedIndex;
 
@@ -170,14 +195,19 @@ namespace Chess
         private async void PrevMoveButton_Click(object sender, RoutedEventArgs e)
         {
             if (animationRunning) return;
-            board.Undo();
-            await UpdateBoard(true);
+            if (((MovesHistory.SelectedItem as ListViewItem)
+                .Tag as LinkedListNode<ChessMove>).Value.Destination != null)
+            {
+                board.Undo();
+                await UpdateBoard(true);
+            }
             MovesHistory.SelectedIndex--;
         }
 
         private async void NextMoveButton_Click(object sender, RoutedEventArgs e)
         {
             if (animationRunning) return;
+            LinkedListNode<ChessMove> nextMove = board.LastMoveNode.Next;
             board.Redo();
             await UpdateBoard(true);
             MovesHistory.SelectedIndex++;
@@ -196,6 +226,32 @@ namespace Chess
         private void FlipBoardCheckBox_CheckChanged(object sender, RoutedEventArgs e)
         {
             FlipBoard();
+        }
+
+        private void ResignButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChessPlayer opp = board.Turn == ChessPlayer.White ? ChessPlayer.Black : ChessPlayer.White;
+            MessageBoxResult ans = MessageBox.Show(
+                $"Are you sure you want to resign\nand concede the game to {opp}?",
+                $"{board.Turn} resigning", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            
+            if (ans == MessageBoxResult.Yes)
+            {
+                EndGame(opp);
+            }
+        }
+
+        private void DrawOfferButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChessPlayer opp = board.Turn == ChessPlayer.White ? ChessPlayer.Black : ChessPlayer.White;
+            MessageBoxResult ans = MessageBox.Show(
+                $"{board.Turn} offered draw. Does {opp} accept?",
+                $"Draw offer", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+
+            if (ans == MessageBoxResult.Yes)
+            {
+                EndGame(null);
+            }
         }
     }
 }

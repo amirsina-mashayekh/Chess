@@ -17,12 +17,12 @@ namespace Chess.ChessUtil
         /// <summary>
         /// Source of move.
         /// </summary>
-        public ChessPosition Source => _source.Copy();
+        public ChessPosition Source => _source is null ? null : _source.Copy();
 
         /// <summary>
         /// Destination of move.
         /// </summary>
-        public ChessPosition Destination => _destination.Copy();
+        public ChessPosition Destination => _destination is null ? null : _destination.Copy();
 
         /// <summary>
         /// The piece which is moved.
@@ -43,7 +43,7 @@ namespace Chess.ChessUtil
         /// <summary>
         /// The player who performed the move.
         /// </summary>
-        public ChessPlayer Player => MovedPiece.Player;
+        public ChessPlayer? Player => MovedPiece is null ? null as ChessPlayer? : MovedPiece.Player;
 
         /// <summary>
         /// Initializes a new instance of the <c>ChessMove</c> class.
@@ -60,28 +60,41 @@ namespace Chess.ChessUtil
             MovedPiece = movedPiece;
             _destination = movedPiece.Position.Copy();
             CapturedPiece = capturedPiece;
+            Symbols = "";
+        }
+
+        /// <summary>
+        /// Initializes an empty instance of the <c>ChessMove</c> class.
+        /// </summary>
+        public ChessMove(King winner, string symbols)
+        {
+            _source = null;
+            MovedPiece = winner;
+            _destination = null;
+            CapturedPiece = null;
+            Symbols = symbols;
         }
 
         public override string ToString()
         {
             StringBuilder str = new StringBuilder();
-            str.Append(Player.ToString()[0]);
-            str.Append(MovedPiece.Letter).Append(Source);
+            str.Append(Player.ToString()[0])
+                .Append(MovedPiece.Letter)
+                .Append(Source);
 
             if (CapturedPiece != null)
             {
                 str.Append('x').Append(CapturedPiece.Letter);
             }
-            str.Append(Destination);
-
-            str.Append(Symbols);
+            str.Append(Destination).Append(Symbols);
 
             return str.ToString();
         }
 
-        public string ToSAN()
+        public string ToLAN()
         {
-            if (MovedPiece is King && Math.Abs(Source.Column - Destination.Column) == 2)
+            if (_destination is null 
+                || (MovedPiece is King && Math.Abs(_source.Column - _destination.Column) == 2))
             {
                 return Symbols;
             }
@@ -89,23 +102,21 @@ namespace Chess.ChessUtil
             StringBuilder str = new StringBuilder();
 
             if (!(MovedPiece is Pawn)) str.Append(MovedPiece.Letter);
-            str.Append(Source);
+            str.Append(_source);
 
             if (CapturedPiece != null)
             {
                 str.Append('x');
                 if (!(CapturedPiece is Pawn)) str.Append(CapturedPiece.Letter);
             }
-            str.Append(Destination);
-
-            str.Append(Symbols);
+            str.Append(_destination).Append(Symbols);
 
             return str.ToString();
         }
 
         public string ToFAN()
         {
-            StringBuilder str = new StringBuilder(ToSAN());
+            StringBuilder str = new StringBuilder(ToLAN());
             foreach (string info in ChessPiece.ChessPiecesInfo.Values)
             {
                 str.Replace(info[(int)ChessPieceInfo.Letter], info[(int)ChessPieceInfo.Symbol]);

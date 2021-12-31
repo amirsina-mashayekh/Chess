@@ -290,10 +290,13 @@ namespace Chess.ChessUtil.Tests
             board.MovePiece(bQueen, 'd', 2);
             PrintBoard(board);
             board.MovePiece(wKing, 'h', 1);
+            Assert.IsNull(board.Winner);
             board.MovePiece(bQueen, 'h', 2);
             PrintBoard(board);
             Assert.IsTrue(board.Ended);
-            Assert.IsTrue(board.MovesHistory.Last.Value.Symbols.EndsWith("#"));
+            Assert.AreEqual(ChessPlayer.Black, board.Winner);
+            Assert.IsTrue(board.MovesHistory.Last.Previous.Value.Symbols.EndsWith("#"));
+            Assert.AreEqual("0-1", board.MovesHistory.Last.Value.Symbols);
             Assert.ThrowsException<InvalidOperationException>(() => board.MovePiece('d', 1, 'd', 8));
         }
 
@@ -336,7 +339,9 @@ namespace Chess.ChessUtil.Tests
             board.MovePiece(bQueen, 'g', 3);
             PrintBoard(board);
             Assert.IsTrue(board.Ended);
-            Assert.IsFalse(board.MovesHistory.Last.Value.Symbols.EndsWith("#"));
+            Assert.IsNull(board.Winner);
+            Assert.IsFalse(board.MovesHistory.Last.Previous.Value.Symbols.EndsWith("#"));
+            Assert.AreEqual("1/2-1/2", board.MovesHistory.Last.Value.Symbols);
         }
 
         [TestMethod()]
@@ -406,6 +411,8 @@ namespace Chess.ChessUtil.Tests
             Assert.AreEqual(ChessPlayer.Black, board.Turn);
             Assert.AreEqual(new ChessPosition('d', 2), bQueen.Position);
             Assert.IsFalse(board.Ended);
+            Assert.IsNull(board.Winner);
+
 
             board.MovePiece(bQueen, 'f', 2);
             PrintBoard(board);
@@ -462,7 +469,9 @@ namespace Chess.ChessUtil.Tests
             while (board.Redo()) PrintBoard(board);
             PrintBoard(board);
             Assert.IsTrue(board.Ended);
-            Assert.IsTrue(board.MovesHistory.Last.Value.Symbols.EndsWith("#"));
+            Assert.AreEqual(ChessPlayer.Black, board.Winner);
+            Assert.IsTrue(board.MovesHistory.Last.Previous.Value.Symbols.EndsWith("#"));
+            Assert.AreEqual("0-1", board.MovesHistory.Last.Value.Symbols);
 
             board.Undo();
             board.Undo();
