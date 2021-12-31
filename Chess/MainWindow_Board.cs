@@ -154,6 +154,7 @@ namespace Chess
             }
 
             UpdateBoard().Wait();
+            ResignButton.IsEnabled = DrawOfferButton.IsEnabled = true;
         }
 
         /// <summary>
@@ -519,18 +520,24 @@ namespace Chess
             }
         }
 
+        /// <summary>
+        /// Sumbits end of game.
+        /// </summary>
+        /// <param name="winner">The player who won the game. <c>null</c> in case of draw.</param>
         private void EndGame(ChessPlayer? winner)
         {
-            board.Winner = winner;
-            board.Ended = true;
-            UpdateBoard().Wait();
             int nextIndex = MovesHistory.SelectedIndex + 1;
             while (MovesHistory.Items.Count != nextIndex)
             {
-                board.MovesHistory.Remove(board.MovesHistory.Last.Previous);
+                board.MovesHistory.RemoveLast();
                 MovesHistory.Items.RemoveAt(nextIndex);
             }
-            PushMoveToHistory(board.MovesHistory.Last);
+
+            board.Winner = winner;
+            board.Ended = true;
+            UpdateBoard().Wait();
+            LinkedListNode<ChessMove> lastNode = board.MovesHistory.Last;
+            PushMoveToHistory(lastNode);
         }
     }
 }

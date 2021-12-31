@@ -161,6 +161,27 @@ namespace Chess
             PrevMoveButton.IsEnabled = MovesHistory.SelectedIndex > -1;
             NextMoveButton.IsEnabled = MovesHistory.SelectedIndex < MovesHistory.Items.Count - 1;
 
+            if (moveNode.Value != null && moveNode.Value.Destination is null)
+            {
+                ResignButton.IsEnabled = DrawOfferButton.IsEnabled = false;
+                moveNode = moveNode.Previous;
+            }
+            else ResignButton.IsEnabled = DrawOfferButton.IsEnabled = true;
+
+            // Undo or redo
+            bool redo = prev is null || MovesHistory.Items.IndexOf(prev) < MovesHistory.SelectedIndex;
+
+            while (board.LastMoveNode != moveNode)
+            {
+                if (redo)
+                    board.Redo();
+                else if (((MovesHistory.SelectedItem as ListViewItem)
+                .Tag as LinkedListNode<ChessMove>).Value.Destination != null)
+                    board.Undo();
+            }
+            if (redo && !ResignButton.IsEnabled) board.Redo();
+            UpdateBoard().Wait();
+
             if (board.Turn == ChessPlayer.White)
             {
                 WhiteStatusPanel.Background =
@@ -173,23 +194,6 @@ namespace Chess
                     board.Winner == ChessPlayer.White ? inCheckSquareBrush : availableSquareBrush;
                 WhiteStatusPanel.Background = Brushes.Transparent;
             }
-
-            if (moveNode.Value != null && moveNode.Value.Destination is null)
-            {
-                ResignButton.IsEnabled = DrawOfferButton.IsEnabled = false;
-                return;
-            }
-            ResignButton.IsEnabled = DrawOfferButton.IsEnabled = true;
-
-            // Undo or redo
-            bool redo = prev is null || MovesHistory.Items.IndexOf(prev) < MovesHistory.SelectedIndex;
-
-            while (board.LastMoveNode != moveNode)
-            {
-                if (redo) board.Redo();
-                else board.Undo();
-            }
-            UpdateBoard().Wait();
         }
 
         private async void PrevMoveButton_Click(object sender, RoutedEventArgs e)
@@ -207,7 +211,6 @@ namespace Chess
         private async void NextMoveButton_Click(object sender, RoutedEventArgs e)
         {
             if (animationRunning) return;
-            LinkedListNode<ChessMove> nextMove = board.LastMoveNode.Next;
             board.Redo();
             await UpdateBoard(true);
             MovesHistory.SelectedIndex++;

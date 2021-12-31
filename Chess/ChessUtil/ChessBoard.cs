@@ -42,11 +42,14 @@ namespace Chess.ChessUtil
             set
             {
                 _ended = value;
-                if (value && MovesHistory.Last.Value.Destination != null)
+                if (value)
                 {
-                    King winner = Pieces.SingleOrDefault(p => p is King && p.Player == Winner) as King;
-                    ChessMove result = new ChessMove(winner, GetResultNotation());
-                    MovesHistory.AddLast(result);
+                    if (MovesHistory.Last.Value is null || MovesHistory.Last.Value.Destination != null)
+                    {
+                        King winner = Pieces.SingleOrDefault(p => p is King && p.Player == Winner) as King;
+                        ChessMove result = new ChessMove(winner, GetResultNotation());
+                        MovesHistory.AddLast(result);
+                    }
                     LastMoveNode = MovesHistory.Last.Previous;
                 }
             }
@@ -441,6 +444,10 @@ namespace Chess.ChessUtil
 
             ToggleTurn();
             // Check status
+            if (MovesHistory.Last.Value != null && MovesHistory.Last.Value.Destination is null)
+            {
+                MovesHistory.RemoveLast();
+            }
             LinkedListNode<ChessMove> move = new LinkedListNode<ChessMove>(new ChessMove(src, piece, occupier));
             if (LastMoveNode != null)
             {
@@ -577,7 +584,6 @@ namespace Chess.ChessUtil
             {
                 Winner = lastMove.Player;
                 Ended = true;
-                LastMoveNode = LastMoveNode.Previous;
                 return false;
             }
 
