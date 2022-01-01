@@ -69,6 +69,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ChessUtil\ChessBoard.cs" />
+    <Compile Include="ChessUtil\ChessBoard_PGN.cs" />
     <Compile Include="ChessUtil\ChessMove.cs" />
     <Compile Include="ChessUtil\ChessPieces\Bishop.cs" />
     <Compile Include="ChessUtil\ChessPieces\ChessPiece.cs" />

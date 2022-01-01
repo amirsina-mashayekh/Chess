@@ -4,44 +4,104 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        xmlns:local="clr-namespace:Chess"
         Title="Chess" MinHeight="400" MinWidth="600" Height="450" Width="650">
     <Grid Background="Gray">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="4*"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="PawnPromotionGrid" Grid.ColumnSpan="2" Background="#C0FFFFFF" Panel.ZIndex="10" Visibility="Collapsed">
+        <Grid x:Name="PawnPromotionGrid" Grid.ColumnSpan="2" Background="#F0CCCCCC" Panel.ZIndex="10" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            
+
             <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="24">
                 Promote pawn to:
             </TextBlock>
-            
+
             <Grid x:Name="PromotionOptionsGrid" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" />
         </Grid>
-        
-        <Viewbox x:Name="boardBox" Stretch="Uniform" RenderTransformOrigin="0.5,0.5" Grid.Column="0" >
+
+        <Grid x:Name="ExportGrid" Grid.ColumnSpan="2" Background="#F0CCCCCC" Panel.ZIndex="10" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*" />
+                <ColumnDefinition Width="6*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" FontSize="24" Margin="0,0,0,20"
+                       HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                Game information
+            </TextBlock>
+
+            <TextBlock Grid.Row="2" Style="{StaticResource ExportFormLabels}">Event</TextBlock>
+            <TextBox x:Name="MatchEvent" Grid.Row="2" Style="{StaticResource ExportFormInputs}" />
+
+            <TextBlock Grid.Row="3" Style="{StaticResource ExportFormLabels}">Site</TextBlock>
+            <TextBox x:Name="MatchSite" Grid.Row="3" Style="{StaticResource ExportFormInputs}" />
+
+            <TextBlock Grid.Row="4" Style="{StaticResource ExportFormLabels}">Round</TextBlock>
+            <TextBox x:Name="MatchRound" Grid.Row="4" Style="{StaticResource ExportFormInputs}" />
+
+            <TextBlock Grid.Row="5" Style="{StaticResource ExportFormLabels}" FontWeight="Bold" Margin="0,0,10,0">
+                White
+            </TextBlock>
+
+            <TextBlock Grid.Row="6" Style="{StaticResource ExportFormLabels}">First name</TextBlock>
+            <TextBox x:Name="WhiteFirstName" Grid.Row="6" Style="{StaticResource ExportFormInputs}" />
+
+            <TextBlock Grid.Row="7" Style="{StaticResource ExportFormLabels}">Last name</TextBlock>
+            <TextBox x:Name="WhiteLastName" Grid.Row="7" Style="{StaticResource ExportFormInputs}" />
+
+            <TextBlock Grid.Row="8" Style="{StaticResource ExportFormLabels}" FontWeight="Bold" Margin="0,0,10,0">
+                Black
+            </TextBlock>
+
+            <TextBlock Grid.Row="9" Style="{StaticResource ExportFormLabels}">First name</TextBlock>
+            <TextBox x:Name="BlackFirstName" Grid.Row="9" Style="{StaticResource ExportFormInputs}" />
+
+            <TextBlock Grid.Row="10" Style="{StaticResource ExportFormLabels}">Last name</TextBlock>
+            <TextBox x:Name="BlackLastName" Grid.Row="10" Style="{StaticResource ExportFormInputs}" />
+
+            <Button x:Name="ExportPGNButton" Grid.Row="11" FontSize="20" Grid.ColumnSpan="2" Click="ExportPGNButton_Click">
+                Export
+            </Button>
+        </Grid>
+
+        <Viewbox x:Name="boardBox" Stretch="Uniform" RenderTransformOrigin="0.5,0.5" Grid.Column="0">
             <Canvas x:Name="BoardCanvas" PreviewMouseLeftButtonDown="BoardCanvas_PreviewMouseLeftButtonDown" Margin="25" />
         </Viewbox>
 
         <Grid Grid.Column="1" Margin="0,25,20,25">
             <Grid.RowDefinitions>
                 <RowDefinition />
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
             <ListView x:Name="MovesHistory" Background="DarkSlateGray" SelectionMode="Single" FontSize="18"
                       Grid.Column="0" AlternationCount="2" ScrollViewer.VerticalScrollBarVisibility="Visible"
-                      ItemContainerStyle="{StaticResource MovesHistoryItemsStyle}" SelectionChanged="MovesHistory_SelectionChanged" />
+                      ItemContainerStyle="{StaticResource MovesHistoryItems}" SelectionChanged="MovesHistory_SelectionChanged" />
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -49,7 +109,7 @@
                     <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                
+
                 <Button x:Name="PrevMoveButton" Grid.Column="0" Click="PrevMoveButton_Click" IsEnabled="False">
                     &#x2B05;
                     <Button.ToolTip>Previous Move</Button.ToolTip>
@@ -63,12 +123,12 @@
                     <Button.ToolTip>Next Move</Button.ToolTip>
                 </Button>
             </Grid>
-            
+
             <WrapPanel x:Name="WhiteStatusPanel" Grid.Row="2">
                 <TextBlock Width="55" FontSize="20">White</TextBlock>
                 <TextBlock x:Name="WhiteScore" FontSize="20" Margin="0,0,5,0">0</TextBlock>
             </WrapPanel>
-            
+
             <WrapPanel x:Name="BlackStatusPanel" Grid.Row="3">
                 <TextBlock Width="55" FontSize="20">Black</TextBlock>
                 <TextBlock x:Name="BlackScore" FontSize="20" Margin="0,0,5,0">0</TextBlock>
@@ -85,6 +145,12 @@
                 </Button>
                 <Button x:Name="ResignButton" FontSize="18" DockPanel.Dock="Right" Click="ResignButton_Click">
                     Resign
+                </Button>
+            </DockPanel>
+
+            <DockPanel Grid.Row="6" LastChildFill="False">
+                <Button x:Name="ExportButton" FontSize="18" DockPanel.Dock="Left" Click="ExportButton_Click">
+                    Export
                 </Button>
             </DockPanel>
         </Grid>

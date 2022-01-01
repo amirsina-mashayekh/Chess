@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Chess.ChessUtil.ChessPieces
 {
@@ -32,7 +31,11 @@ namespace Chess.ChessUtil.ChessPieces
                 {
                     int c = col + j;
                     int r = row + i;
-                    if (i == 0 && j == 0) continue;
+                    if (i == 0 && j == 0)
+                    {
+                        continue;
+                    }
+
                     if (ChessPosition.ColumnIsValid(c) && ChessPosition.RowIsValid(r))
                     {
                         moves.Add(new ChessPosition(c, r));

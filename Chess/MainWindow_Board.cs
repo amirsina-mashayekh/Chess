@@ -3,7 +3,6 @@ using Chess.ChessUtil.ChessPieces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -72,7 +71,10 @@ namespace Chess
                 {
                     for (int i = 0; i < BoardCanvas.Children.Count; i++)
                     {
-                        if (!(BoardCanvas.Children[i] is Rectangle rect)) continue;
+                        if (!(BoardCanvas.Children[i] is Rectangle rect))
+                        {
+                            continue;
+                        }
 
                         if (rect.Fill == selectedSquareBrush || rect.Fill == availableSquareBrush)
                         {
@@ -287,7 +289,10 @@ namespace Chess
             // Clear previous in check squares
             for (int i = 0; i < BoardCanvas.Children.Count; i++)
             {
-                if (!(BoardCanvas.Children[i] is Rectangle rect)) continue;
+                if (!(BoardCanvas.Children[i] is Rectangle rect))
+                {
+                    continue;
+                }
 
                 if (rect.Fill == inCheckSquareBrush)
                 {
@@ -475,7 +480,11 @@ namespace Chess
                 TextAlignment = TextAlignment.Left,
                 Width = 50
             };
-            if (moveNode.Value.Destination is null) moveNumber.Text = "";
+            if (moveNode.Value.Destination is null)
+            {
+                moveNumber.Text = "";
+            }
+
             content.Children.Add(moveNumber);
             DockPanel.SetDock(moveNumber, Dock.Left);
             TextBlock moveText = new TextBlock()
@@ -509,14 +518,18 @@ namespace Chess
         {
             RotateTransform trans = null;
 
-            if ((bool)FlipBoardCheckBox.IsChecked && board.Turn == ChessPlayer.Black) 
+            if ((bool)FlipBoardCheckBox.IsChecked && board.Turn == ChessPlayer.Black)
+            {
                 trans = flip;
+            }
 
             boardBox.RenderTransform = trans;
             foreach (UIElement element in BoardCanvas.Children)
             {
                 if (element is Viewbox || element is TextBlock)
+                {
                     element.RenderTransform = trans;
+                }
             }
         }
 

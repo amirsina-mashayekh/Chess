@@ -1,5 +1,4 @@
-﻿using Chess.ChessUtil;
-using Chess.ChessUtil.ChessPieces;
+﻿using Chess.ChessUtil.ChessPieces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -413,12 +412,15 @@ namespace Chess.ChessUtil.Tests
             Assert.IsFalse(board.Ended);
             Assert.IsNull(board.Winner);
 
-
             board.MovePiece(bQueen, 'f', 2);
             PrintBoard(board);
             Assert.IsNull(board.MovesHistory.Find(mateMove));
 
-            while (board.Undo()) PrintBoard(board);
+            while (board.Undo())
+            {
+                PrintBoard(board);
+            }
+
             PrintBoard(board);
             Assert.AreEqual(ChessPlayer.White, board.Turn);
             Assert.AreEqual(new ChessPosition('e', 1), wKing.Position);
@@ -463,10 +465,18 @@ namespace Chess.ChessUtil.Tests
             board.MovePiece(bQueen, 'h', 2);
             PrintBoard(board);
 
-            while (board.Undo()) PrintBoard(board);
+            while (board.Undo())
+            {
+                PrintBoard(board);
+            }
+
             PrintBoard(board);
 
-            while (board.Redo()) PrintBoard(board);
+            while (board.Redo())
+            {
+                PrintBoard(board);
+            }
+
             PrintBoard(board);
             Assert.IsTrue(board.Ended);
             Assert.AreEqual(ChessPlayer.Black, board.Winner);

@@ -1,6 +1,5 @@
 ﻿using Chess.ChessUtil.ChessPieces;
 using System;
-using System.Linq;
 using System.Text;
 
 namespace Chess.ChessUtil
@@ -17,12 +16,12 @@ namespace Chess.ChessUtil
         /// <summary>
         /// Source of move.
         /// </summary>
-        public ChessPosition Source => _source is null ? null : _source.Copy();
+        public ChessPosition Source => _source?.Copy();
 
         /// <summary>
         /// Destination of move.
         /// </summary>
-        public ChessPosition Destination => _destination is null ? null : _destination.Copy();
+        public ChessPosition Destination => _destination?.Copy();
 
         /// <summary>
         /// The piece which is moved.
@@ -43,7 +42,7 @@ namespace Chess.ChessUtil
         /// <summary>
         /// The player who performed the move.
         /// </summary>
-        public ChessPlayer? Player => MovedPiece is null ? null as ChessPlayer? : MovedPiece.Player;
+        public ChessPlayer? Player => MovedPiece?.Player;
 
         /// <summary>
         /// Initializes a new instance of the <c>ChessMove</c> class.
@@ -91,9 +90,17 @@ namespace Chess.ChessUtil
             return str.ToString();
         }
 
-        public string ToLAN()
+        /// <summary>
+        /// Returns algebraic notation of this instance.
+        /// </summary>
+        /// <param name="longNotation">
+        /// Whether it should be standard of long (including source position) notation.
+        /// <c>true</c> for long and <c>false</c> for standard notation.
+        /// </param>
+        /// <returns>Algebraic notation of this move.</returns>
+        public string ToAN(bool longNotation = false)
         {
-            if (_destination is null 
+            if (_destination is null
                 || (MovedPiece is King && Math.Abs(_source.Column - _destination.Column) == 2))
             {
                 return Symbols;
@@ -101,22 +108,37 @@ namespace Chess.ChessUtil
 
             StringBuilder str = new StringBuilder();
 
-            if (!(MovedPiece is Pawn)) str.Append(MovedPiece.Letter);
-            str.Append(_source);
+            if (!(MovedPiece is Pawn))
+            {
+                str.Append(MovedPiece.Letter);
+            }
+
+            if (longNotation)
+            {
+                str.Append(_source);
+            }
 
             if (CapturedPiece != null)
             {
+                if (!longNotation && MovedPiece is Pawn)
+                {
+                    str.Append(_source.File);
+                }
+
                 str.Append('x');
-                if (!(CapturedPiece is Pawn)) str.Append(CapturedPiece.Letter);
             }
             str.Append(_destination).Append(Symbols);
 
             return str.ToString();
         }
 
+        /// <summary>
+        /// Returns figurine algebraic notation of this instance.
+        /// </summary>
+        /// <returns>Figurine algebraic notation of this move.</returns>
         public string ToFAN()
         {
-            StringBuilder str = new StringBuilder(ToLAN());
+            StringBuilder str = new StringBuilder(ToAN(true));
             foreach (string info in ChessPiece.ChessPiecesInfo.Values)
             {
                 str.Replace(info[(int)ChessPieceInfo.Letter], info[(int)ChessPieceInfo.Symbol]);

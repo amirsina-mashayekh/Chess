@@ -20,7 +20,11 @@ namespace Chess.ChessUtil.ChessPieces
 
             for (int i = ChessPosition.MinRow; i <= ChessPosition.MaxRow; i++)
             {
-                if (i == row) continue;
+                if (i == row)
+                {
+                    continue;
+                }
+
                 int rowDiff = Math.Abs(i - row);
                 if (col - rowDiff >= ChessPosition.MinColumn)
                 {

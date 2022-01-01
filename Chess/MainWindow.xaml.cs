@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Chess.ChessUtil;
+using Chess.ChessUtil.ChessPieces;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using Chess.ChessUtil;
-using Chess.ChessUtil.ChessPieces;
 
 namespace Chess
 {
@@ -107,7 +108,11 @@ namespace Chess
         private void Piece_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             ChessPiece piece = pieces.Single(p => p.Value == sender).Key;
-            if (piece.Player != board.Turn) return;
+            if (piece.Player != board.Turn)
+            {
+                return;
+            }
+
             SelectedPiece = piece;
         }
 
@@ -135,7 +140,7 @@ namespace Chess
                     msg = $"{board.Winner} won!";
                 }
                 MessageBox.Show(msg, "Game finished", MessageBoxButton.OK, MessageBoxImage.Information);
-                
+
                 PushMoveToHistory(board.MovesHistory.Last);
             }
         }
@@ -152,9 +157,13 @@ namespace Chess
             LinkedListNode<ChessMove> moveNode;
 
             if (MovesHistory.SelectedItem is ListViewItem item)
+            {
                 moveNode = item.Tag as LinkedListNode<ChessMove>;
+            }
             else
+            {
                 moveNode = board.MovesHistory.First;
+            }
 
             ListViewItem prev = e.RemovedItems.Count > 0 ? e.RemovedItems[0] as ListViewItem : null;
 
@@ -166,7 +175,10 @@ namespace Chess
                 ResignButton.IsEnabled = DrawOfferButton.IsEnabled = false;
                 moveNode = moveNode.Previous;
             }
-            else ResignButton.IsEnabled = DrawOfferButton.IsEnabled = true;
+            else
+            {
+                ResignButton.IsEnabled = DrawOfferButton.IsEnabled = true;
+            }
 
             // Undo or redo
             bool redo = prev is null || MovesHistory.Items.IndexOf(prev) < MovesHistory.SelectedIndex;
@@ -174,12 +186,20 @@ namespace Chess
             while (board.LastMoveNode != moveNode)
             {
                 if (redo)
+                {
                     board.Redo();
+                }
                 else if (((MovesHistory.SelectedItem as ListViewItem)
                 .Tag as LinkedListNode<ChessMove>).Value.Destination != null)
+                {
                     board.Undo();
+                }
             }
-            if (redo && !ResignButton.IsEnabled) board.Redo();
+            if (redo && !ResignButton.IsEnabled)
+            {
+                board.Redo();
+            }
+
             UpdateBoard().Wait();
 
             if (board.Turn == ChessPlayer.White)
@@ -198,7 +218,11 @@ namespace Chess
 
         private async void PrevMoveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (animationRunning) return;
+            if (animationRunning)
+            {
+                return;
+            }
+
             if (((MovesHistory.SelectedItem as ListViewItem)
                 .Tag as LinkedListNode<ChessMove>).Value.Destination != null)
             {
@@ -210,7 +234,11 @@ namespace Chess
 
         private async void NextMoveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (animationRunning) return;
+            if (animationRunning)
+            {
+                return;
+            }
+
             board.Redo();
             await UpdateBoard(true);
             MovesHistory.SelectedIndex++;
@@ -221,9 +249,11 @@ namespace Chess
             MessageBoxResult result = MessageBox.Show(
                 "Are you sure you want to start a new game?\nAll data of current game will be lost.",
                 "New Game", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-            
+
             if (result == MessageBoxResult.Yes)
+            {
                 InitNewGame();
+            }
         }
 
         private void FlipBoardCheckBox_CheckChanged(object sender, RoutedEventArgs e)
@@ -237,7 +267,7 @@ namespace Chess
             MessageBoxResult ans = MessageBox.Show(
                 $"Are you sure you want to resign\nand concede the game to {opp}?",
                 $"{board.Turn} resigning", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-            
+
             if (ans == MessageBoxResult.Yes)
             {
                 EndGame(opp);
@@ -255,6 +285,78 @@ namespace Chess
             {
                 EndGame(null);
             }
+        }
+
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            ExportGrid.Visibility = Visibility.Visible;
+        }
+
+        private void ExportPGNButton_Click(object sender, RoutedEventArgs e)
+        {
+            string[] pgn;
+
+            try
+            {
+                pgn = board.ToPGN(MatchEvent.Text,
+                                           MatchSite.Text,
+                                           MatchRound.Text,
+                                           WhiteLastName.Text,
+                                           WhiteFirstName.Text,
+                                           BlackLastName.Text,
+                                           BlackFirstName.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error happened while exporting game: " + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string wName = WhiteLastName.Text;
+            if (string.IsNullOrWhiteSpace(wName))
+            {
+                wName = "Unknown";
+            }
+
+            string bName = BlackLastName.Text;
+            if (string.IsNullOrWhiteSpace(bName))
+            {
+                bName = "Unknown";
+            }
+
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Title = "Save Game",
+                FileName = $"{wName}_vs_{bName}_" +
+                    $"{board.StartTime.ToString("yyyy.MM.dd", CultureInfo.InvariantCulture)}",
+                DefaultExt = ".pgn",
+                Filter = "Protable Game Notation (*.pgn)|*.pgn",
+                AddExtension = true,
+                CheckPathExists = true,
+                OverwritePrompt = true
+            };
+
+            if (sfd.ShowDialog() == false)
+            {
+                return;
+            }
+
+            try
+            {
+                File.WriteAllLines(sfd.FileName, pgn);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error happened while writing game file: " + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            MessageBox.Show("Game exported successfully!",
+                "Done", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ExportGrid.Visibility = Visibility.Collapsed;
         }
     }
 }
