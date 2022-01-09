@@ -189,8 +189,7 @@ namespace Chess
                 {
                     board.Redo();
                 }
-                else if (((MovesHistory.SelectedItem as ListViewItem)
-                .Tag as LinkedListNode<ChessMove>).Value.Destination != null)
+                else if (moveNode.Value is null || moveNode.Value.Destination != null)
                 {
                     board.Undo();
                 }
